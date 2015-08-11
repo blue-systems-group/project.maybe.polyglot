@@ -10,7 +10,7 @@ import polyglot.util.Position;
 import polyglot.util.SerialVersionUID;
 import polyglot.visit.AmbiguityRemover;
 import polyglot.visit.TypeBuilder;
-import edu.buffalo.cse.blue.maybe.types.CArrayTypeSystem;
+import edu.buffalo.cse.blue.maybe.types.MaybeTypeSystem;
 
 public class ConstArrayTypeNode_c extends ArrayTypeNode_c implements ConstArrayTypeNode {
     public ConstArrayTypeNode_c(Position pos, TypeNode base) {
@@ -19,7 +19,7 @@ public class ConstArrayTypeNode_c extends ArrayTypeNode_c implements ConstArrayT
 
     @Override
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
-        CArrayTypeSystem ts = (CArrayTypeSystem) tb.typeSystem();
+        MaybeTypeSystem ts = (MaybeTypeSystem) tb.typeSystem();
         return type(ts.constArrayOf(position(), base().type()));
     }
 
@@ -29,7 +29,7 @@ public class ConstArrayTypeNode_c extends ArrayTypeNode_c implements ConstArrayT
         if (!baseType.isCanonical()) {
             return this;
         }
-        CArrayTypeSystem ts = (CArrayTypeSystem) ar.typeSystem();
+        MaybeTypeSystem ts = (MaybeTypeSystem) ar.typeSystem();
         NodeFactory nf = ar.nodeFactory();
         return nf.CanonicalTypeNode(position(), ts.constArrayOf(position(), baseType));
     }
