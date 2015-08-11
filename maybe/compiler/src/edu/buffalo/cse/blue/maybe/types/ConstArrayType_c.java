@@ -7,7 +7,7 @@ import polyglot.util.Position;
 import polyglot.util.SerialVersionUID;
 
 public class ConstArrayType_c extends ArrayType_c implements ConstArrayType {
-    private static final long SerialVersionUID = 123456789L;
+    private static final long serialVersionUID = SerialVersionUID.generate();
 
     public ConstArrayType_c(TypeSystem ts, Position pos, Type base) {
         super(ts, pos, base);
