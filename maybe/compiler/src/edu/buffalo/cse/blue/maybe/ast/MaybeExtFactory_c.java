@@ -20,4 +20,8 @@ public final class MaybeExtFactory_c extends MaybeAbstractExtFactory_c {
 
     // TODO: Override factory methods for new extension nodes in the current
     // extension.
+    @Override
+    protected Ext extArrayAccessAssignImpl() {
+        return new CArrayAccessAssignExt();
+    }
 }
