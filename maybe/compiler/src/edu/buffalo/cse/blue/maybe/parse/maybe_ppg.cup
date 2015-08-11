@@ -23,6 +23,12 @@ parser Grm extends polyglot.parse.Grm {:
         nf = (MaybeNodeFactory) n;
     }
 
+    public TypeNode constArray(TypeNode n, int dims) throws Exception {
+        if (dims > 0)
+            return nf.ConstArrayTypeNode(n.position(), constArray(n, dims - 1));
+        return n;
+    }
+
 :}
 scan with {: return nextSymbol(); :};
 terminal Token BOOLEAN;
@@ -297,7 +303,17 @@ interface_type ::=
 
 array_type ::=
     primitive_type:a dims:b {:  RESULT = parser.array(a, b.intValue());  :}
- |  name:a dims:b {:  RESULT = parser.array(a.toType(), b.intValue());  :};
+ |  name:a dims:b {:  RESULT = parser.array(a.toType(), b.intValue());  :}
+ |  primitive_type:a CONST dims:b {:
+                                 
+        RESULT = parser.constArray(a, b);
+    
+                                  :}
+ |  name:a CONST dims:b {:
+                       
+        RESULT = parser.constArray(a.toType(), b);
+    
+                        :};
 
 name ::=
     simple_name:a {:  RESULT = a;  :}
@@ -1254,7 +1270,18 @@ cast_expression ::=
  |  LPAREN:p name:a dims:b RPAREN unary_expression_not_plus_minus:c {:
                                                                     RESULT = parser.nf.Cast(parser.pos(p, c,a),
                 parser.array(a.toType(), b.intValue()), c); 
-                                                                    :};
+                                                                    :}
+ |  LPAREN:p primitive_type:a CONST dims:b RPAREN unary_expression:c {:
+                                                                    
+        RESULT = parser.nf.Cast(parser.pos(p, c, a), parser.constArray(a, b), c);
+    
+                                                                     :}
+ |  LPAREN:p name:a CONST dims:b RPAREN unary_expression_not_plus_minus:c {:
+                                                                         
+      RESULT = parser.nf.Cast(parser.pos(p, c, a),
+                        parser.constArray(a.toType(), b), c);
+  
+                                                                          :};
 
 multiplicative_expression ::=
     unary_expression:a {:  RESULT = a;  :}

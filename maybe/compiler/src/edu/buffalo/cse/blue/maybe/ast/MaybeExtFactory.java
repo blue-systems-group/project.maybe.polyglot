@@ -8,4 +8,5 @@ import polyglot.ast.ExtFactory;
  */
 public interface MaybeExtFactory extends ExtFactory {
     // TODO: Declare any factory methods for new extension nodes.
+    Ext extConstArrayTypeNode();
 }

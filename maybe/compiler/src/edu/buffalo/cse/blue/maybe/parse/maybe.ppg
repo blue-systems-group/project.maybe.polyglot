@@ -17,8 +17,33 @@ parser Grm extends polyglot.parse.Grm {:
         ts = (MaybeTypeSystem) t;
         nf = (MaybeNodeFactory) n;
     }
+
+    public TypeNode constArray(TypeNode n, int dims) throws Exception {
+        if (dims > 0)
+            return nf.ConstArrayTypeNode(n.position(), constArray(n, dims - 1));
+        return n;
+    }
 :};
 
 start with goal;
 
 // TODO: modify the default Java grammar using PPG operations
+
+extend array_type ::=
+    primitive_type: a CONST dims:b {:
+        RESULT = parser.constArray(a, b);
+    :}
+  | name:a CONST dims:b {:
+        RESULT = parser.constArray(a.toType(), b);
+    :}
+;
+
+extend cast_expression ::=
+    LPAREN:p primitive_type:a CONST dims:b RPAREN unary_expression:c {:
+        RESULT = parser.nf.Cast(parser.pos(p, c, a), parser.constArray(a, b), c);
+    :}
+  | LPAREN:p name:a CONST dims:b RPAREN unary_expression_not_plus_minus:c {:
+      RESULT = parser.nf.Cast(parser.pos(p, c, a),
+                        parser.constArray(a.toType(), b), c);
+  :}
+;
