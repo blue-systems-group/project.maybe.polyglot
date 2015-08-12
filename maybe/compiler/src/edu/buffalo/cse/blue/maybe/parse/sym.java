@@ -13,6 +13,7 @@ public class sym {
   public static final int STATIC = 28;
   public static final int MINUS = 62;
   public static final int COMP = 63;
+  public static final int MAYBE = 109;
   public static final int MULT = 15;
   public static final int INTERFACE = 42;
   public static final int SEMICOLON = 14;
@@ -21,6 +22,7 @@ public class sym {
   public static final int LTEQ = 72;
   public static final int ELSE = 44;
   public static final int ANDEQ = 91;
+  public static final int MAYBEOR = 110;
   public static final int PLUSEQ = 86;
   public static final int IF = 43;
   public static final int LONG_LITERAL_BD = 97;
@@ -226,7 +228,9 @@ public class sym {
   "CONST",
   "GOTO",
   "STRICTFP",
-  "ASSERT"
+  "ASSERT",
+  "MAYBE",
+  "MAYBEOR"
   };
 }
 

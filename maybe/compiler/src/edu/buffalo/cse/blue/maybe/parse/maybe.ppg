@@ -19,6 +19,75 @@ parser Grm extends polyglot.parse.Grm {:
     }
 :};
 
+terminal Token MAYBE, MAYBEOR;
+// non terminal Maybe maybe_statement, maybe_statement_no_short_if;
+
 start with goal;
 
 // TODO: modify the default Java grammar using PPG operations
+
+// extend statement ::=
+//    maybe_statement:a {:  RESULT = a;  :};
+
+//extend statement_no_short_if ::=
+//    maybe_statement_no_short_if:a {:  RESULT = a;  :};
+
+extend if_then_else_statement ::=
+    MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR statement:c
+    {:
+        RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
+    :};
+
+extend if_then_else_statement_no_short_if ::=
+    MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR statement_no_short_if:c
+    {:
+        RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
+    :};
+
+// switch_statement ::=
+//     SWITCH:n LPAREN expression:a RPAREN:rprn switch_block:b {:
+//
+//                Position endpos = parser.pos(n, b);
+//                if (endpos == null) endpos = parser.pos(n, rprn);
+//                RESULT = parser.nf.Switch(endpos, a, b);
+//
+//                                                             :};
+//
+// switch_block ::=
+//     LBRACE switch_block_statement_groups:a switch_labels:b RBRACE {:
+//                                                                   RESULT = a;
+//                a.addAll(b);
+//                                                                   :}
+//  |  LBRACE switch_block_statement_groups:a RBRACE {:  RESULT = a;  :}
+//  |  LBRACE switch_labels:a RBRACE {:  RESULT = a;  :}
+//  |  LBRACE RBRACE {:  RESULT = new LinkedList<>();  :};
+//
+// switch_block_statement_groups ::=
+//     switch_block_statement_group:a {:  RESULT = a;  :}
+//  |  switch_block_statement_groups:a switch_block_statement_group:b {:
+//                                                                    RESULT = a;
+//                a.addAll(b);
+//                                                                    :};
+//
+// switch_block_statement_group ::=
+//     switch_labels:a block_statements:b {:
+//                                        List<SwitchElement> l = new LinkedList<>();
+//                l.addAll(a);
+//                l.add(parser.nf.SwitchBlock(parser.pos(a, b), b));
+//                RESULT = l;
+//                                        :};
+//
+// switch_labels ::=
+//     switch_label:a {:
+//                    List<SwitchElement> l = new LinkedList<>();
+//                l.add(a);
+//                RESULT = l;
+//                    :}
+//  |  switch_labels:a switch_label:b {:  RESULT = a;
+//                a.add(b);  :};
+//
+// switch_label ::=
+//     CASE:n constant_expression:a COLON:d {:
+//                                          RESULT = parser.nf.Case(parser.pos(n, d), a);
+//                                          :}
+//  |  DEFAULT:n COLON:d {:  RESULT = parser.nf.Default(parser.pos(n, d));  :};

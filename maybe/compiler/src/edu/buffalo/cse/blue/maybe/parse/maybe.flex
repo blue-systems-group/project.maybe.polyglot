@@ -108,6 +108,9 @@ import java.util.Set;
         keywords.put("void",          new Integer(sym.VOID));
         keywords.put("volatile",      new Integer(sym.VOLATILE));
         keywords.put("while",         new Integer(sym.WHILE));
+
+        keywords.put("maybe",         new Integer(sym.MAYBE));
+        keywords.put("or",            new Integer(sym.MAYBEOR));
     }
 
     @Override

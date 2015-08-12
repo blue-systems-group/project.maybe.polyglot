@@ -194,6 +194,7 @@ non terminal Expr left_hand_side;
 non terminal Assign.Operator assignment_operator;
 non terminal Expr expression_opt, expression;
 non terminal Expr constant_expression;
+terminal Token MAYBE, MAYBEOR;
 
 
 start with goal;
@@ -853,12 +854,22 @@ if_then_statement ::=
 if_then_else_statement ::=
     IF:n LPAREN expression:a RPAREN statement_no_short_if:b ELSE statement:c {:
                                                                              RESULT = parser.nf.If(parser.pos(n, c), a, b, c); 
-                                                                             :};
+                                                                             :}
+ |  MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR statement:c {:
+                                                                                  
+        RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
+    
+                                                                                   :};
 
 if_then_else_statement_no_short_if ::=
     IF:n LPAREN expression:a RPAREN statement_no_short_if:b ELSE statement_no_short_if:c {:
                                                                                          RESULT = parser.nf.If(parser.pos(n, c), a, b, c); 
-                                                                                         :};
+                                                                                         :}
+ |  MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR statement_no_short_if:c {:
+                                                                                              
+        RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
+    
+                                                                                               :};
 
 switch_statement ::=
     SWITCH:n LPAREN expression:a RPAREN:rprn switch_block:b {:

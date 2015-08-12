@@ -13,4 +13,5 @@ import java.util.*;
  */
 public interface MaybeNodeFactory extends NodeFactory {
     // TODO: Declare any factory methods for new AST nodes.
+    Maybe Maybe(Position pos, Expr cond, Stmt body, Stmt consequent);
 }

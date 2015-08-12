@@ -21,4 +21,11 @@ public class MaybeNodeFactory_c extends NodeFactory_c implements MaybeNodeFactor
     // TODO:  Implement factory methods for new AST nodes.
     // TODO:  Override factory methods for overridden AST nodes.
     // TODO:  Override factory methods for AST nodes with new extension nodes.
+    @Override
+    public Maybe Maybe(Position pos, Expr cond, Stmt consequent, Stmt alternative) {
+        Maybe n = new Maybe_c(pos, cond, consequent, alternative);
+        n = ext(n, extFactory().extIf());
+        n = del(n, delFactory().delIf());
+        return n;
+    }
 }
