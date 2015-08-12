@@ -20,7 +20,7 @@ fixclasspath() {
   fi
 
   cp="$1"
-  if [ "$windows" = 1 ]; then 
+  if [ "$windows" = 1 ]; then
       cygpath -pw "$cp"
   else
       echo "$cp"

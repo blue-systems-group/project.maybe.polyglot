@@ -20,7 +20,7 @@ fixclasspath() {
   fi
 
   cp="$1"
-  if [ "$windows" = 1 ]; then 
+  if [ "$windows" = 1 ]; then
       cygpath -pw "$cp"
   else
       echo "$cp"
@@ -35,7 +35,7 @@ java=java
 ext=maybe
 
 polyglot() {
-  eval "$java" "$vmargs" -classpath "'$classpath'" maybe.Main "$@"
+  eval "$java" "$vmargs" -classpath "'$classpath'" edu.buffalo.cse.blue.maybe.Main "$@"
 }
 
 while true; do
@@ -73,9 +73,9 @@ while true; do
     esac
 done
 
-if [ -n "$ext" ]; then
-  args="-ext '$ext' $args"
-fi
+# if [ -n "$ext" ]; then
+#   args="-ext '$ext' $args"
+# fi
 
 
 classpath="$dir/compiler/classes:$dir/runtime/classes:$dir/lib/polyglot.jar:$dir/lib/java_cup.jar"
