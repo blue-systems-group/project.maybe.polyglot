@@ -8,7 +8,7 @@ import polyglot.types.Qualifier;
 import polyglot.util.*;
 import java.util.*;
 
-public interface Maybe extends If {
+public interface Maybe extends CompoundStmt {
     /** Get the if's condition. */
     Expr cond();
 

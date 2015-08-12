@@ -5,6 +5,7 @@ package edu.buffalo.cse.blue.maybe.parse;
 
 import edu.buffalo.cse.blue.maybe.types.MaybeTypeSystem;
 import edu.buffalo.cse.blue.maybe.ast.MaybeNodeFactory;
+import edu.buffalo.cse.blue.maybe.ast.Maybe;
 import polyglot.parse.Name;
 import polyglot.parse.VarDeclarator;
 
@@ -17,10 +18,14 @@ parser Grm extends polyglot.parse.Grm {:
         ts = (MaybeTypeSystem) t;
         nf = (MaybeNodeFactory) n;
     }
+
+    public Maybe Maybe(Position pos, Expr cond, Stmt consequent, Stmt alternative) throws Exception {
+        return nf.Maybe(pos, cond, consequent, alternative);
+    }
 :};
 
 terminal Token MAYBE, MAYBEOR;
-// non terminal Maybe maybe_statement, maybe_statement_no_short_if;
+non terminal Maybe maybe_statement, maybe_statement_no_short_if;
 non terminal List<Block> maybe_clauses;
 non terminal Block maybe_clause;
 
@@ -28,25 +33,29 @@ start with goal;
 
 // TODO: modify the default Java grammar using PPG operations
 
-// extend statement ::=
-//    maybe_statement:a {:  RESULT = a;  :};
+extend statement ::=
+   maybe_statement:a {:  RESULT = a;  :};
 
-//extend statement_no_short_if ::=
-//    maybe_statement_no_short_if:a {:  RESULT = a;  :};
+extend statement_no_short_if ::=
+   maybe_statement_no_short_if:a {:  RESULT = a;  :};
 
-extend if_then_else_statement ::=
+maybe_statement ::=
+// extend if_then_else_statement ::=
     // MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b maybe_clauses:c
     MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR statement:c
     {:
         RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
-    :};
+    :}
+;
 
-extend if_then_else_statement_no_short_if ::=
+maybe_statement_no_short_if ::=
+// extend if_then_else_statement_no_short_if ::=
     // MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR maybe_clauses:c
     MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR statement_no_short_if:c
     {:
         RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
-    :};
+    :}
+;
 
 // extend statement ::=
 //     maybe_clauses:a
