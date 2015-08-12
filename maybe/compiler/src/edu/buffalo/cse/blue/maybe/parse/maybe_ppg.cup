@@ -195,6 +195,8 @@ non terminal Assign.Operator assignment_operator;
 non terminal Expr expression_opt, expression;
 non terminal Expr constant_expression;
 terminal Token MAYBE, MAYBEOR;
+non terminal List<Block> maybe_clauses;
+non terminal Block maybe_clause;
 
 
 start with goal;
@@ -1428,5 +1430,17 @@ expression ::=
 
 constant_expression ::=
     expression:a {:  RESULT = a;  :};
+
+maybe_clauses ::=
+    maybe_clause:a {:
+                   List<Block> l = new LinkedList<>();
+            l.add(a);
+            RESULT = l; 
+                   :}
+ |  maybe_clauses:a maybe_clause:b {:  RESULT = a;
+           a.add(b);  :};
+
+maybe_clause ::=
+    MAYBEOR:n block:b {:  RESULT = b;  :};
 
 

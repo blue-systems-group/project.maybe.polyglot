@@ -21,6 +21,8 @@ parser Grm extends polyglot.parse.Grm {:
 
 terminal Token MAYBE, MAYBEOR;
 // non terminal Maybe maybe_statement, maybe_statement_no_short_if;
+non terminal List<Block> maybe_clauses;
+non terminal Block maybe_clause;
 
 start with goal;
 
@@ -33,16 +35,45 @@ start with goal;
 //    maybe_statement_no_short_if:a {:  RESULT = a;  :};
 
 extend if_then_else_statement ::=
+    // MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b maybe_clauses:c
     MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR statement:c
     {:
         RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
     :};
 
 extend if_then_else_statement_no_short_if ::=
+    // MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR maybe_clauses:c
     MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR statement_no_short_if:c
     {:
         RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
     :};
+
+// extend statement ::=
+//     maybe_clauses:a
+//         {: RESULT = a; :}
+// ;
+
+
+// maybe_statement ::=
+//     MAYBE:n LPAREN expression:a RPAREN block:b maybe_clauses:c
+//             {: RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c); :}
+//     ;
+
+maybe_clauses ::=
+    // List of maybe catch
+    maybe_clause:a
+        {: List<Block> l = new LinkedList<>();
+            l.add(a);
+            RESULT = l; :}
+    |   maybe_clauses:a maybe_clause:b
+        {: RESULT = a;
+           a.add(b); :}
+    ;
+
+maybe_clause ::=
+    MAYBEOR:n block:b
+    {: RESULT = b; :}
+;
 
 // switch_statement ::=
 //     SWITCH:n LPAREN expression:a RPAREN:rprn switch_block:b {:

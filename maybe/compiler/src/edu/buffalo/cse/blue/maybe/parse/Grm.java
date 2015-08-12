@@ -26,7 +26,7 @@ public class Grm
   /** Production table. */
   protected static final short _production_table[][] = 
     unpackFromStrings(new String[] {
-    "\000\u0170\000\002\002\004\000\002\002\003\000\002\003" +
+    "\000\u0173\000\002\002\004\000\002\002\003\000\002\003" +
     "\003\000\002\003\003\000\002\003\003\000\002\003\003" +
     "\000\002\003\003\000\002\003\003\000\002\003\003\000" +
     "\002\003\003\000\002\004\003\000\002\004\003\000\002" +
@@ -139,7 +139,8 @@ public class Grm
     "\000\002\230\003\000\002\230\003\000\002\230\003\000" +
     "\002\230\003\000\002\230\003\000\002\230\003\000\002" +
     "\230\003\000\002\231\002\000\002\231\003\000\002\232" +
-    "\003\000\002\233\003" });
+    "\003\000\002\233\003\000\002\234\003\000\002\234\004" +
+    "\000\002\235\004" });
 
   /** Access to production table. */
   @Override
@@ -7029,7 +7030,7 @@ class CUP$Grm$actions {
 
         }
     } /* end of method */
-    /** Method with the actual generated action code for actions 300 to 367. */
+    /** Method with the actual generated action code for actions 300 to 370. */
     public final java_cup.runtime.Symbol CUP$Grm$do_action_part00000001(
             int                        CUP$Grm$act_num,
             java_cup.runtime.lr_parser CUP$Grm$parser,
@@ -7839,6 +7840,43 @@ class CUP$Grm$actions {
                 Expr a = CUP$Grm$stack.peek().<Expr> value();
                   RESULT = a;  
                 CUP$Grm$result = parser.getSymbolFactory().newSymbol("constant_expression",153, RESULT);
+            }
+            return CUP$Grm$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 368: // maybe_clauses ::= maybe_clause 
+            {
+                List<Block> RESULT = null;
+                Block a = CUP$Grm$stack.peek().<Block> value();
+                
+                   List<Block> l = new LinkedList<>();
+            l.add(a);
+            RESULT = l; 
+                   
+                CUP$Grm$result = parser.getSymbolFactory().newSymbol("maybe_clauses",154, RESULT);
+            }
+            return CUP$Grm$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 369: // maybe_clauses ::= maybe_clauses maybe_clause 
+            {
+                List<Block> RESULT = null;
+                List<Block> a = CUP$Grm$stack.elementAt(CUP$Grm$top-1).<List<Block>> value();
+                Block b = CUP$Grm$stack.peek().<Block> value();
+                  RESULT = a;
+           a.add(b);  
+                CUP$Grm$result = parser.getSymbolFactory().newSymbol("maybe_clauses",154, RESULT);
+            }
+            return CUP$Grm$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 370: // maybe_clause ::= MAYBEOR block 
+            {
+                Block RESULT = null;
+                Token n = CUP$Grm$stack.elementAt(CUP$Grm$top-1).<Token> value();
+                Block b = CUP$Grm$stack.peek().<Block> value();
+                  RESULT = b;  
+                CUP$Grm$result = parser.getSymbolFactory().newSymbol("maybe_clause",155, RESULT);
             }
             return CUP$Grm$result;
 
