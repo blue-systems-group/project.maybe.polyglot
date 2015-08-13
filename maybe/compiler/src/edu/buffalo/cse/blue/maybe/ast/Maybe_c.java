@@ -144,21 +144,37 @@ public class Maybe_c extends Stmt_c implements Maybe {
 
     @Override
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-        w.write("if (");
+        w.write("switch ((");
         printBlock(cond, w, tr);
-        w.write(" == 0)");
+        // TODO: use maybe library to get choices
+        w.write(").length()) {");
+        w.unifiedBreak(4);
+        w.begin(0);
 
-        printSubStmt(consequent, w, tr);
+        int i = 0;
 
+        w.write("case " + i++ + ": ");
+        printBlock(consequent, w, tr);
+        w.unifiedBreak(0);
+        w.write("break;");
         if (alternatives != null) {
-            w.allowBreak(0, 2, " ", 1);
             for (Block b : alternatives) {
-                // w.newline(0);
-                // printBlock(b, w, tr);
-                w.write("else ");
-                print(b, w, tr);
+                w.unifiedBreak(0);
+                w.write("case " + i++ + ": ");
+                printBlock(b, w, tr);
+                w.unifiedBreak(0);
+                w.write("break;");
             }
         }
+        w.unifiedBreak(0);
+        w.write("default: ");
+        w.unifiedBreak(0);
+        // TODO: handle default, choices out of range error
+        w.write("break;");
+
+        w.end();
+        w.unifiedBreak(0);
+        w.write("}");
     }
 
     @Override
