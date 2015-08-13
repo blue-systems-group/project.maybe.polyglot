@@ -30,6 +30,7 @@ public class Maybe_c extends Stmt_c implements Maybe {
 
     public Maybe_c(Position pos, Expr cond, Stmt consequent, Stmt alternative) {
         super(pos, null);
+        System.out.println(pos.toString());
         assert (cond != null && consequent != null); // alternative may be null;
         this.cond = cond;
         this.consequent = consequent;
@@ -108,7 +109,7 @@ public class Maybe_c extends Stmt_c implements Maybe {
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
 
-        if (!ts.isImplicitCastValid(cond.type(), ts.Boolean())) {
+        if (!ts.isImplicitCastValid(cond.type(), ts.String())) {
             throw new SemanticException("Condition of if statement must have BOOLEAN type.",
                                         cond.position());
         }
@@ -228,11 +229,11 @@ public class Maybe_c extends Stmt_c implements Maybe {
         return succs;
     }
 
-    @Override
-    public Node copy(NodeFactory nf) {
-        return nf.If(this.position,
-                     this.cond,
-                     this.consequent,
-                     this.alternative);
-    }
+    // @Override
+    // public Node copy(NodeFactory nf) {
+    //     return ((MaybeNodeFactory) nf).Maybe(this.position,
+    //                  this.cond,
+    //                  this.consequent,
+    //                  this.alternative);
+    // }
 }
