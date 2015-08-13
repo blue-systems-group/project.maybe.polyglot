@@ -25,16 +25,15 @@ public class Maybe_c extends Stmt_c implements Maybe {
     private static final long serialVersionUID = SerialVersionUID.generate();
 
     protected Expr cond;
-    protected Stmt consequent;
-    protected Stmt alternative;
+    protected Block consequent;
+    protected List<Block> alternatives;
 
-    public Maybe_c(Position pos, Expr cond, Stmt consequent, Stmt alternative) {
+    public Maybe_c(Position pos, Expr cond, Block consequent, List<Block> alternatives) {
         super(pos, null);
-        System.out.println(pos.toString());
-        assert (cond != null && consequent != null); // alternative may be null;
+        assert (cond != null && consequent != null); // alternatives may be null;
         this.cond = cond;
         this.consequent = consequent;
-        this.alternative = alternative;
+        this.alternatives = alternatives;
     }
 
     @Override
@@ -55,16 +54,16 @@ public class Maybe_c extends Stmt_c implements Maybe {
     }
 
     @Override
-    public Stmt consequent() {
+    public Block consequent() {
         return this.consequent;
     }
 
     @Override
-    public Maybe consequent(Stmt consequent) {
+    public Maybe consequent(Block consequent) {
         return consequent(this, consequent);
     }
 
-    protected <N extends Maybe_c> N consequent(N n, Stmt consequent) {
+    protected <N extends Maybe_c> N consequent(N n, Block consequent) {
         if (n.consequent == consequent) return n;
         n = copyIfNeeded(n);
         n.consequent = consequent;
@@ -72,37 +71,42 @@ public class Maybe_c extends Stmt_c implements Maybe {
     }
 
     @Override
-    public Stmt alternative() {
-        return this.alternative;
+    public List<Block> alternatives() {
+        return this.alternatives;
     }
 
     @Override
-    public Maybe alternative(Stmt alternative) {
-        return alternative(this, alternative);
+    public Maybe alternatives(List<Block> alternatives) {
+        return alternatives(this, alternatives);
     }
 
-    protected <N extends Maybe_c> N alternative(N n, Stmt alternative) {
-        if (n.alternative == alternative) return n;
+    protected <N extends Maybe_c> N alternatives(N n, List<Block> alternatives) {
+        if (n.alternatives == alternatives) return n;
         n = copyIfNeeded(n);
-        n.alternative = alternative;
+        n.alternatives = alternatives;
         return n;
     }
 
     /** Reconstruct the statement. */
-    protected <N extends Maybe_c> N reconstruct(N n, Expr cond, Stmt consequent,
-            Stmt alternative) {
+    protected <N extends Maybe_c> N reconstruct(N n, Expr cond, Block consequent,
+            List<Block> alternatives) {
         n = cond(n, cond);
         n = consequent(n, consequent);
-        n = alternative(n, alternative);
+        n = alternatives(n, alternatives);
         return n;
     }
 
     @Override
     public Node visitChildren(NodeVisitor v) {
         Expr cond = visitChild(this.cond, v);
-        Stmt consequent = visitChild(this.consequent, v);
-        Stmt alternative = visitChild(this.alternative, v);
-        return reconstruct(this, cond, consequent, alternative);
+        Block consequent = visitChild(this.consequent, v);
+        List<Block> list = new LinkedList<Block>();
+        if (alternatives != null) {
+            for (Block b : alternatives) {
+                 list.add(visitChild(b, v));
+            }
+        }
+        return reconstruct(this, cond, consequent, list);
     }
 
     @Override
@@ -110,7 +114,7 @@ public class Maybe_c extends Stmt_c implements Maybe {
         TypeSystem ts = tc.typeSystem();
 
         if (!ts.isImplicitCastValid(cond.type(), ts.String())) {
-            throw new SemanticException("Condition of if statement must have BOOLEAN type.",
+            throw new SemanticException("Maybe label must be String type.",
                                         cond.position());
         }
         // if (!ts.isImplicitCastValid(cond.type(), ts.Boolean())) {
@@ -134,34 +138,25 @@ public class Maybe_c extends Stmt_c implements Maybe {
 
     @Override
     public String toString() {
-        return "if (" + cond + ") " + consequent
-                + (alternative != null ? " else " + alternative : "");
+        return "maybe (" + cond + ") " + consequent
+                + (alternatives != null ? " or " + alternatives : "");
     }
 
     @Override
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
         w.write("if (");
         printBlock(cond, w, tr);
-        w.write(")");
+        w.write(" == 0)");
 
         printSubStmt(consequent, w, tr);
 
-        if (alternative != null) {
-            if (consequent instanceof Block) {
-                // allow the "} else {" formatting except in emergencies
-                w.allowBreak(0, 2, " ", 1);
-            }
-            else {
-                w.allowBreak(0, " ");
-            }
-
-            if (alternative instanceof Block) {
+        if (alternatives != null) {
+            w.allowBreak(0, 2, " ", 1);
+            for (Block b : alternatives) {
+                // w.newline(0);
+                // printBlock(b, w, tr);
                 w.write("else ");
-                print(alternative, w, tr);
-            }
-            else {
-                w.write("else");
-                printSubStmt(alternative, w, tr);
+                print(b, w, tr);
             }
         }
     }
@@ -173,59 +168,13 @@ public class Maybe_c extends Stmt_c implements Maybe {
 
     @Override
     public <T> List<T> acceptCFG(CFGBuilder<?> v, List<T> succs) {
-        if (v.lang().isConstant(cond, v.lang()) && v.skipDeadIfBranches()) {
-            // the condition is a constant expression.
-            // That means that one branch is dead code
-            boolean condConstantValue =
-                    ((Boolean) v.lang().constantValue(cond, v.lang())).booleanValue();
-            if (condConstantValue) {
-                // the condition is constantly true.
-                // the alternative won't be executed.
-                v.visitCFG(cond, FlowGraph.EDGE_KEY_TRUE, consequent, ENTRY);
-                v.visitCFG(consequent, this, EXIT);
-            }
-            else {
-                // the condition is constantly false.
-                // the consequent won't be executed.
-                if (alternative == null) {
-                    // there is no alternative
-                    v.visitCFG(cond, this, EXIT);
-                }
-                else {
-                    v.visitCFG(cond,
-                               FlowGraph.EDGE_KEY_FALSE,
-                               alternative,
-                               ENTRY);
-                    v.visitCFG(alternative, this, EXIT);
-                }
-            }
+        // No sense, just suppress Unreachable statement check
+        for (Block b : alternatives) {
+            v.visitCFG(cond, FlowGraph.EDGE_KEY_TRUE, consequent, ENTRY, FlowGraph.EDGE_KEY_FALSE, b, ENTRY);
+            v.visitCFG(b, this, EXIT);
         }
-        else if (alternative == null) {
-            // the alternative is null (but the condition is not constant, or we can't
-            // skip dead statements.)
-            v.visitCFG(cond,
-                       FlowGraph.EDGE_KEY_TRUE,
-                       consequent,
-                       ENTRY,
-                       FlowGraph.EDGE_KEY_FALSE,
-                       this,
-                       EXIT);
-            v.visitCFG(consequent, this, EXIT);
-        }
-        else {
-            // both consequent and alternative are present, and either the condition
-            // is not constant or we can't skip dead statements.
-            v.visitCFG(cond,
-                       FlowGraph.EDGE_KEY_TRUE,
-                       consequent,
-                       ENTRY,
-                       FlowGraph.EDGE_KEY_FALSE,
-                       alternative,
-                       ENTRY);
-            v.visitCFG(consequent, this, EXIT);
-            v.visitCFG(alternative, this, EXIT);
-        }
-
+        v.visitCFG(cond, FlowGraph.EDGE_KEY_TRUE, consequent, ENTRY, FlowGraph.EDGE_KEY_FALSE, consequent, ENTRY);
+        v.visitCFG(consequent, this, EXIT);
         return succs;
     }
 

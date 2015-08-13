@@ -19,39 +19,35 @@ parser Grm extends polyglot.parse.Grm {:
         nf = (MaybeNodeFactory) n;
     }
 
-    public Maybe Maybe(Position pos, Expr cond, Stmt consequent, Stmt alternative) throws Exception {
-        return nf.Maybe(pos, cond, consequent, alternative);
+    public Maybe Maybe(Position pos, Expr cond, Block consequent, List<Block> alternatives) throws Exception {
+        return nf.Maybe(pos, cond, consequent, alternatives);
     }
 :};
 
 terminal Token MAYBE, MAYBEOR;
-non terminal Maybe maybe_statement, maybe_statement_no_short_if;
-non terminal List<Block> maybe_clauses;
+non terminal Maybe maybe_statement;
+non terminal List<Block> maybe_clauses, maybe_opt;
 non terminal Block maybe_clause;
 
 start with goal;
 
 // TODO: modify the default Java grammar using PPG operations
 
-extend statement ::=
-   maybe_statement:a {:  RESULT = a;  :};
+// extend statement ::=
+//    maybe_statement:a {:  RESULT = a;  :};
+//
+// extend statement_no_short_if ::=
+//    maybe_statement_no_short_if:a {:  RESULT = a;  :};
 
-extend statement_no_short_if ::=
-   maybe_statement_no_short_if:a {:  RESULT = a;  :};
+extend statement_without_trailing_substatement ::=
+    maybe_statement:a
+        {: RESULT = a; :}
+;
 
 maybe_statement ::=
 // extend if_then_else_statement ::=
     // MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b maybe_clauses:c
-    MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR statement:c
-    {:
-        RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
-    :}
-;
-
-maybe_statement_no_short_if ::=
-// extend if_then_else_statement_no_short_if ::=
-    // MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR maybe_clauses:c
-    MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b MAYBEOR statement_no_short_if:c
+    MAYBE:n LPAREN expression:a RPAREN block:b maybe_opt:c
     {:
         RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
     :}
@@ -67,6 +63,12 @@ maybe_statement_no_short_if ::=
 //     MAYBE:n LPAREN expression:a RPAREN block:b maybe_clauses:c
 //             {: RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c); :}
 //     ;
+
+maybe_opt ::=
+            {: RESULT = new LinkedList<>(); :}
+    |   maybe_clauses:a
+            {: RESULT = a; :}
+    ;
 
 maybe_clauses ::=
     // List of maybe catch

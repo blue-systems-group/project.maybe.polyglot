@@ -19,11 +19,11 @@ public interface Maybe extends CompoundStmt {
     Stmt consequent();
 
     /** Set the if's then clause. */
-    Maybe consequent(Stmt consequent);
+    Maybe consequent(Block consequent);
 
     /** Get the if's else clause, or null. */
-    Stmt alternative();
+    List<Block> alternatives();
 
     /** Set the if's else clause. */
-    Maybe alternative(Stmt alternative);
+    Maybe alternatives(List<Block> alternatives);
 }
