@@ -25,14 +25,12 @@ public class Maybe_c extends Stmt_c implements Maybe {
     private static final long serialVersionUID = SerialVersionUID.generate();
 
     protected Expr cond;
-    protected Block consequent;
     protected List<Block> alternatives;
 
-    public Maybe_c(Position pos, Expr cond, Block consequent, List<Block> alternatives) {
+    public Maybe_c(Position pos, Expr cond, List<Block> alternatives) {
         super(pos, null);
-        assert (cond != null && consequent != null); // alternatives may be null;
+        assert (cond != null && alternatives != null);
         this.cond = cond;
-        this.consequent = consequent;
         this.alternatives = alternatives;
     }
 
@@ -54,23 +52,6 @@ public class Maybe_c extends Stmt_c implements Maybe {
     }
 
     @Override
-    public Block consequent() {
-        return this.consequent;
-    }
-
-    @Override
-    public Maybe consequent(Block consequent) {
-        return consequent(this, consequent);
-    }
-
-    protected <N extends Maybe_c> N consequent(N n, Block consequent) {
-        if (n.consequent == consequent) return n;
-        n = copyIfNeeded(n);
-        n.consequent = consequent;
-        return n;
-    }
-
-    @Override
     public List<Block> alternatives() {
         return this.alternatives;
     }
@@ -88,10 +69,8 @@ public class Maybe_c extends Stmt_c implements Maybe {
     }
 
     /** Reconstruct the statement. */
-    protected <N extends Maybe_c> N reconstruct(N n, Expr cond, Block consequent,
-            List<Block> alternatives) {
+    protected <N extends Maybe_c> N reconstruct(N n, Expr cond, List<Block> alternatives) {
         n = cond(n, cond);
-        n = consequent(n, consequent);
         n = alternatives(n, alternatives);
         return n;
     }
@@ -99,14 +78,13 @@ public class Maybe_c extends Stmt_c implements Maybe {
     @Override
     public Node visitChildren(NodeVisitor v) {
         Expr cond = visitChild(this.cond, v);
-        Block consequent = visitChild(this.consequent, v);
         List<Block> list = new LinkedList<Block>();
         if (alternatives != null) {
             for (Block b : alternatives) {
                  list.add(visitChild(b, v));
             }
         }
-        return reconstruct(this, cond, consequent, list);
+        return reconstruct(this, cond, list);
     }
 
     @Override
@@ -138,8 +116,7 @@ public class Maybe_c extends Stmt_c implements Maybe {
 
     @Override
     public String toString() {
-        return "maybe (" + cond + ") " + consequent
-                + (alternatives != null ? " or " + alternatives : "");
+        return "maybe (" + cond + ") " + " or " + alternatives;
     }
 
     @Override
@@ -153,13 +130,18 @@ public class Maybe_c extends Stmt_c implements Maybe {
 
         int i = 0;
 
-        w.write("case " + i++ + ": ");
-        printBlock(consequent, w, tr);
-        w.unifiedBreak(0);
-        w.write("break;");
+        // w.write("case " + i++ + ": ");
+        // printBlock(consequent, w, tr);
+        // w.unifiedBreak(0);
+        // w.write("break;");
+        boolean first = true;
         if (alternatives != null) {
             for (Block b : alternatives) {
-                w.unifiedBreak(0);
+                if (first) {
+                    first = false;
+                } else {
+                    w.unifiedBreak(0);
+                }
                 w.write("case " + i++ + ": ");
                 printBlock(b, w, tr);
                 w.unifiedBreak(0);
@@ -186,19 +168,16 @@ public class Maybe_c extends Stmt_c implements Maybe {
     public <T> List<T> acceptCFG(CFGBuilder<?> v, List<T> succs) {
         // No sense, just suppress Unreachable statement check
         for (Block b : alternatives) {
-            v.visitCFG(cond, FlowGraph.EDGE_KEY_TRUE, consequent, ENTRY, FlowGraph.EDGE_KEY_FALSE, b, ENTRY);
+            v.visitCFG(cond, FlowGraph.EDGE_KEY_TRUE, b, ENTRY, FlowGraph.EDGE_KEY_FALSE, b, ENTRY);
             v.visitCFG(b, this, EXIT);
         }
-        v.visitCFG(cond, FlowGraph.EDGE_KEY_TRUE, consequent, ENTRY, FlowGraph.EDGE_KEY_FALSE, consequent, ENTRY);
-        v.visitCFG(consequent, this, EXIT);
         return succs;
     }
 
-    // @Override
-    // public Node copy(NodeFactory nf) {
-    //     return ((MaybeNodeFactory) nf).Maybe(this.position,
-    //                  this.cond,
-    //                  this.consequent,
-    //                  this.alternative);
-    // }
+    @Override
+    public Node copy(NodeFactory nf) {
+        return ((MaybeNodeFactory) nf).Maybe(this.position,
+                     this.cond,
+                     this.alternatives);
+    }
 }

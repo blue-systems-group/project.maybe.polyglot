@@ -19,15 +19,15 @@ parser Grm extends polyglot.parse.Grm {:
         nf = (MaybeNodeFactory) n;
     }
 
-    public Maybe Maybe(Position pos, Expr cond, Block consequent, List<Block> alternatives) throws Exception {
-        return nf.Maybe(pos, cond, consequent, alternatives);
+    public Maybe Maybe(Position pos, Expr cond, List<Block> alternatives) throws Exception {
+        return nf.Maybe(pos, cond, alternatives);
     }
 :};
 
 terminal Token MAYBE, MAYBEOR;
 non terminal Maybe maybe_statement;
-non terminal List<Block> maybe_clauses, maybe_opt;
-non terminal Block maybe_clause;
+non terminal List<Block> maybe_clauses;
+// non terminal List<Block> maybe_clauses, maybe_opt;
 
 start with goal;
 
@@ -47,9 +47,9 @@ extend statement_without_trailing_substatement ::=
 maybe_statement ::=
 // extend if_then_else_statement ::=
     // MAYBE:n LPAREN expression:a RPAREN statement_no_short_if:b maybe_clauses:c
-    MAYBE:n LPAREN expression:a RPAREN block:b maybe_opt:c
+    MAYBE:n LPAREN expression:a RPAREN maybe_clauses:b
     {:
-        RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c);
+        RESULT = parser.nf.Maybe(parser.pos(n, b), a, b);
     :}
 ;
 
@@ -64,27 +64,23 @@ maybe_statement ::=
 //             {: RESULT = parser.nf.Maybe(parser.pos(n, c), a, b, c); :}
 //     ;
 
-maybe_opt ::=
-            {: RESULT = new LinkedList<>(); :}
-    |   maybe_clauses:a
-            {: RESULT = a; :}
-    ;
+// maybe_opt ::=
+//     block:a
+//             {: RESULT = new LinkedList<>(); :}
+//     |   maybe_clauses:a
+//             {: RESULT = a; :}
+//     ;
 
 maybe_clauses ::=
     // List of maybe catch
-    maybe_clause:a
+    block:a
         {: List<Block> l = new LinkedList<>();
             l.add(a);
             RESULT = l; :}
-    |   maybe_clauses:a maybe_clause:b
+    |   maybe_clauses:a MAYBEOR block:b
         {: RESULT = a;
            a.add(b); :}
     ;
-
-maybe_clause ::=
-    MAYBEOR:n block:b
-    {: RESULT = b; :}
-;
 
 // switch_statement ::=
 //     SWITCH:n LPAREN expression:a RPAREN:rprn switch_block:b {:

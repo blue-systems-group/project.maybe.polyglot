@@ -9,21 +9,15 @@ import polyglot.util.*;
 import java.util.*;
 
 public interface Maybe extends CompoundStmt {
-    /** Get the if's condition. */
+    /** Get the maybe's condition. */
     Expr cond();
 
-    /** Set the if's condition. */
+    /** Set the maybe's condition. */
     Maybe cond(Expr cond);
 
-    /** Get the if's then clause. */
-    Stmt consequent();
-
-    /** Set the if's then clause. */
-    Maybe consequent(Block consequent);
-
-    /** Get the if's else clause, or null. */
+    /** Get the maybe's else clause, or null. */
     List<Block> alternatives();
 
-    /** Set the if's else clause. */
+    /** Set the maybe's else clause. */
     Maybe alternatives(List<Block> alternatives);
 }
