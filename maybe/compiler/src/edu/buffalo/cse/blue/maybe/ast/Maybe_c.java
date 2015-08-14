@@ -91,6 +91,7 @@ public class Maybe_c extends Stmt_c implements Maybe {
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
 
+        // TODO: the input must be a constant String, so we can generate metadata.
         if (!ts.isImplicitCastValid(cond.type(), ts.String())) {
             throw new SemanticException("Maybe label must be String type.",
                                         cond.position());
