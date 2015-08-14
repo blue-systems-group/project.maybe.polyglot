@@ -118,6 +118,7 @@ extend assignment ::=
 //     ;
 
 // TODO: change VarDeclarator support a.maybeInit = b
+// TODO: maybe we need extends VarDeclarator
 // non terminal VarDeclarator variable_declarator_id;
 // variable_declarator ::=
 //                 // VarDeclarator
@@ -130,7 +131,7 @@ extend assignment ::=
 extend variable_declarator ::=
         variable_declarator_id:a EQ MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
             {: RESULT = a;
-               a.init = b; :}
+               a.init = c.get(0); :}
 ;
 
 maybe_variable_initializer ::=

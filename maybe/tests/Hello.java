@@ -4,6 +4,7 @@ public class Hello {
     }
 
     public static void maybeVariable() {
+        // TODO: implement mechanism
         int a = 1;
         a = maybe("a") {1, 2, 3};
         a *= maybe("a") {1, 2, 3};
@@ -26,8 +27,8 @@ public class Hello {
         // TODO: error below
         // array[0] = maybe("array") {1, 2, 3};
 
-        // TODO: implement below:
-        // int b = maybe("b") {1, 2, 3};
+        // DONE: can indentify below.
+        int b = maybe("b") {10, 2, 3};
     }
 
     public static void main(String[] args) {
