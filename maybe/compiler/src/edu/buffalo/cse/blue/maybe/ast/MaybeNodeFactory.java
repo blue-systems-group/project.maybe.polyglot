@@ -23,4 +23,6 @@ public interface MaybeNodeFactory extends NodeFactory {
     MaybeAssign MaybeFieldAssign(Position pos, Field left, Assign.Operator op, Expr right);
     MaybeAssign MaybeArrayAccessAssign(Position pos, ArrayAccess left, Assign.Operator op, Expr right);
     MaybeAssign MaybeAmbAssign(Position pos, Expr left, Assign.Operator op, Expr right);
+
+    LocalDecl LocalDecl(Position pos, Flags flags, TypeNode type, Id name, Expr init);
 }

@@ -42,6 +42,15 @@ parser Grm extends polyglot.parse.Grm {:
     public MaybeAssign MaybeAmbAssign(Position pos, Local left, Operator op, Expr right) throws Exception {
         return nf.MaybeAmbAssign(pos, left, op, right);
     }
+
+    public List<LocalDecl> variableDeclarators(TypeNode a, List<VarDeclarator> b, Flags flags) throws Exception {
+        List<LocalDecl> l = new LinkedList<>();
+        for (VarDeclarator d : b) {
+            l.add(nf.LocalDecl(pos(d), flags, array(a, d.dims),
+            d.name, d.init));
+        }
+        return l;
+    }
 :};
 
 terminal Token MAYBE, MAYBEOR;
@@ -95,6 +104,34 @@ extend assignment ::=
             RESULT = parser.nf.MaybeAssign(parser.pos(a, c), a, m, c.get(0));
         :}
     ;
+
+
+// variable_declarators ::=
+//                     // List of VarDeclarator
+//         variable_declarator:a
+//             {: List<VarDeclarator> l = new LinkedList<>();
+//                l.add(a);
+//                RESULT = l; :}
+//     |   variable_declarators:a COMMA variable_declarator:b
+//             {: RESULT = a;
+//                a.add(b); :}
+//     ;
+
+// TODO: change VarDeclarator support a.maybeInit = b
+// non terminal VarDeclarator variable_declarator_id;
+// variable_declarator ::=
+//                 // VarDeclarator
+//         variable_declarator_id:a
+//             {: RESULT = a; :}
+//     |   variable_declarator_id:a EQ variable_initializer:b
+//             {: RESULT = a;
+//                a.init = b; :}
+// TODO: or we need extend variable_initializer that can handle maybe?
+extend variable_declarator ::=
+        variable_declarator_id:a EQ MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
+            {: RESULT = a;
+               a.init = b; :}
+;
 
 maybe_variable_initializer ::=
     variable_initializer:a

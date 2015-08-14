@@ -84,4 +84,13 @@ public class MaybeNodeFactory_c extends NodeFactory_c implements MaybeNodeFactor
         n = del(n, delFactory().delAmbAssign());
         return n;
     }
+
+    @Override
+    public LocalDecl LocalDecl(Position pos, Flags flags, TypeNode type,
+            Id name, Expr init) {
+        LocalDecl n = new LocalDecl_c(pos, flags, type, name, init);
+        n = ext(n, extFactory().extLocalDecl());
+        n = del(n, delFactory().delLocalDecl());
+        return n;
+    }
 }
