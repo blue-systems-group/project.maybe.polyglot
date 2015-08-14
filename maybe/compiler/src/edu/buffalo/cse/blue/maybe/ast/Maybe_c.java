@@ -124,7 +124,7 @@ public class Maybe_c extends Stmt_c implements Maybe {
         w.write("switch ((");
         printBlock(cond, w, tr);
         // TODO: use maybe library to get choices
-        w.write(").length()) {");
+        w.write(").length() % 2) {");
         w.unifiedBreak(4);
         w.begin(0);
 
