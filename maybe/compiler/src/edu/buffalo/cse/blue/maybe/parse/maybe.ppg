@@ -57,6 +57,7 @@ terminal Token MAYBE, MAYBEOR;
 non terminal Maybe maybe_statement;
 non terminal List<Block> maybe_clauses;
 non terminal List<Expr> maybe_variable_initializer;
+non terminal Expr maybe_variable;
 // non terminal List<Block> maybe_clauses, maybe_opt;
 
 start with goal;
@@ -98,14 +99,19 @@ maybe_statement ::=
 
 extend assignment ::=
         // Expr
-        left_hand_side:a assignment_operator:m MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
+        left_hand_side:a assignment_operator:m maybe_variable:c
         // left_hand_side:a EQ:b MAYBE:n LPAREN expression:c RPAREN maybe_variable_initializer:d
         {:
-            RESULT = parser.nf.MaybeAssign(parser.pos(a, c), a, m, c.get(0));
+            RESULT = parser.nf.MaybeAssign(parser.pos(a, c), a, m, c);
         :}
     ;
 
-
+maybe_variable ::=
+    MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
+    {:
+        RESULT = parser.nf.MaybeVariable(parser.pos(n, c), b, c);
+    :}
+;
 // variable_declarators ::=
 //                     // List of VarDeclarator
 //         variable_declarator:a
@@ -129,9 +135,9 @@ extend assignment ::=
 //                a.init = b; :}
 // TODO: or we need extend variable_initializer that can handle maybe?
 extend variable_declarator ::=
-        variable_declarator_id:a EQ MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
+        variable_declarator_id:a EQ maybe_variable:b
             {: RESULT = a;
-               a.init = c.get(0); :}
+               a.init = b; :}
 ;
 
 maybe_variable_initializer ::=
