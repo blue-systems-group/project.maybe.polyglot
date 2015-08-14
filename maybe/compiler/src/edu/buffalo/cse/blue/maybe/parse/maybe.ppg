@@ -4,8 +4,8 @@ include "polyglot/parse/java12.cup"
 package edu.buffalo.cse.blue.maybe.parse;
 
 import edu.buffalo.cse.blue.maybe.types.MaybeTypeSystem;
-import edu.buffalo.cse.blue.maybe.ast.MaybeNodeFactory;
-import edu.buffalo.cse.blue.maybe.ast.Maybe;
+import edu.buffalo.cse.blue.maybe.ast.*;
+import polyglot.ast.Assign.Operator;
 import polyglot.parse.Name;
 import polyglot.parse.VarDeclarator;
 
@@ -22,11 +22,32 @@ parser Grm extends polyglot.parse.Grm {:
     public Maybe Maybe(Position pos, Expr cond, List<Block> alternatives) throws Exception {
         return nf.Maybe(pos, cond, alternatives);
     }
+
+    public MaybeAssign MaybeAssign(Position pos, Expr left, Operator op, Expr right) throws Exception {
+        return nf.MaybeAssign(pos, left, op, right);
+    }
+
+    public MaybeAssign MaybeLocalAssign(Position pos, Local left, Operator op, Expr right) throws Exception {
+        return nf.MaybeLocalAssign(pos, left, op, right);
+    }
+
+    public MaybeAssign MaybeFieldAssign(Position pos, Field left, Operator op, Expr right) throws Exception {
+        return nf.MaybeFieldAssign(pos, left, op, right);
+    }
+
+    public MaybeAssign MaybeArrayAccessAssign(Position pos, ArrayAccess left, Operator op, Expr right) throws Exception {
+        return nf.MaybeArrayAccessAssign(pos, left, op, right);
+    }
+
+    public MaybeAssign MaybeAmbAssign(Position pos, Local left, Operator op, Expr right) throws Exception {
+        return nf.MaybeAmbAssign(pos, left, op, right);
+    }
 :};
 
 terminal Token MAYBE, MAYBEOR;
 non terminal Maybe maybe_statement;
 non terminal List<Block> maybe_clauses;
+non terminal List<Expr> maybe_variable_initializer;
 // non terminal List<Block> maybe_clauses, maybe_opt;
 
 start with goal;
@@ -52,6 +73,70 @@ maybe_statement ::=
         RESULT = parser.nf.Maybe(parser.pos(n, b), a, b);
     :}
 ;
+
+// extend variable_declarator ::=
+//     //             // VarDeclarator
+//     //     variable_declarator_id:a
+//     //         {: RESULT = a; :}
+//     // |   variable_declarator_id:a EQ variable_initializer:b
+//     //         {: RESULT = a;
+//     //            a.init = b; :}
+//         variable_declarator_id:a EQ MAYBE:n LPAREN expression:b RPAREN maybe_variable_initializer:b
+//         {:
+//             RESULT = a;
+//         :}
+// ;
+
+extend assignment ::=
+        // Expr
+        left_hand_side:a assignment_operator:m MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
+        // left_hand_side:a EQ:b MAYBE:n LPAREN expression:c RPAREN maybe_variable_initializer:d
+        {:
+            RESULT = parser.nf.MaybeAssign(parser.pos(a, c), a, m, c.get(0));
+        :}
+    ;
+
+maybe_variable_initializer ::=
+    variable_initializer:a
+    {:
+        List<Expr> l = new LinkedList<>();
+        l.add(a);
+        RESULT = l;
+    :}
+    |
+    maybe_variable_initializer:a COMMA variable_initializer:b
+    {:
+        RESULT = a;
+        a.add(b);
+    :}
+;
+
+// variable_initializer ::=
+//                     // Expr
+//         expression:a
+//             {: RESULT = a; :}
+//     |   array_initializer:a
+//             {: RESULT = a; :}
+//     ;
+
+// variable_initializers ::=
+//                     // List of Expr
+//         variable_initializer:a
+//             {: List<Expr> l = new LinkedList<>();
+//            l.add(a);
+//            RESULT = l; :}
+//     |   variable_initializers:a COMMA variable_initializer:b
+//             {: RESULT = a; a.add(b); :}
+//     ;
+
+// variable_declarator ::=
+//                 // VarDeclarator
+//         variable_declarator_id:a
+//             {: RESULT = a; :}
+//     |   variable_declarator_id:a EQ variable_initializer:b
+//             {: RESULT = a;
+//                a.init = b; :}
+//     ;
 
 // extend statement ::=
 //     maybe_clauses:a

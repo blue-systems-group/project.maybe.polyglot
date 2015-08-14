@@ -2,10 +2,39 @@ public class Hello {
     public static String getLabel(String label) {
         return "" + label;
     }
+
+    public static void maybeVariable() {
+        int a = 1;
+        a = maybe("a") {1, 2, 3};
+        a *= maybe("a") {1, 2, 3};
+        a /= maybe("a") {1, 2, 3};
+        a %= maybe("a") {1, 2, 3};
+        a += maybe("a") {1, 2, 3};
+        a -= maybe("a") {1, 2, 3};
+
+        a <<= maybe("a") {1, 2, 3};
+        a >>= maybe("a") {1, 2, 3};
+        a >>>= maybe("a") {1, 2, 3};
+
+        a &= maybe("a") {1, 2, 3};
+        a ^= maybe("a") {1, 2, 3};
+        a |= maybe("a") {1, 2, 3};
+
+        int[] array = new int[3];
+        array = new int[]{1, 2, 3};
+        array = maybe("array") {{1}, {2}, {3}};
+        // TODO: error below
+        // array[0] = maybe("array") {1, 2, 3};
+
+        // TODO: implement below:
+        // int b = maybe("b") {1, 2, 3};
+    }
+
     public static void main(String[] args) {
-        // int a = maybe ("0") 1, 2, 3;
+        maybeVariable();
+
         String label = "one alternative ";
-        maybe(label) {
+        maybe (label) {
             System.out.println(label);
         }
 
