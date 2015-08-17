@@ -6,6 +6,12 @@ public class Hello {
     public static void maybeVariable() {
         // TODO: implement mechanism
         int a = 1;
+        String label = "a";
+        a = maybe(label) {1, 2, 3};
+        a = maybe(getlabel(label)) {1, 2, 3};
+        a = maybe(label + label) {1, 2, 3};
+        a = maybe(label + "a") {1, 2, 3};
+
         a = maybe("a") {1, 2, 3};
         a *= maybe("a") {1, 2, 3};
         a /= maybe("a") {1, 2, 3};

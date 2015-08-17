@@ -45,6 +45,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public Precedence precedence() {
+        System.out.println("precedence");
         return Precedence.ASSIGN;
     }
 
@@ -59,9 +60,14 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     }
 
     protected <N extends MaybeAssign_c> N left(N n, Expr left) {
-        if (n.left == left) return n;
+        System.out.println("left");
+        if (n.left == left) {
+            System.out.println("don't copy left");
+            return n;
+        }
         n = copyIfNeeded(n);
         n.left = left;
+        System.out.println("CCOOPPYY left");
         return n;
     }
 
@@ -76,9 +82,14 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     }
 
     protected <N extends MaybeAssign_c> N label(N n, Expr label) {
-        if (n.maybeLabel == maybeLabel) return n;
+        System.out.println("label");
+        if (n.maybeLabel == maybeLabel) {
+            System.out.println("don't copy label");
+            return n;
+        }
         n = copyIfNeeded(n);
         n.maybeLabel = label;
+        System.out.println("CCOOPPYY label");
         return n;
     }
 
@@ -96,6 +107,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         if (n.op == op) return n;
         n = copyIfNeeded(n);
         n.op = op;
+        System.out.println("CCOOPPYY op");
         return n;
     }
 
@@ -110,27 +122,54 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     }
 
     protected <N extends MaybeAssign_c> N right(N n, List<Expr> right) {
-        if (n.right == right) return n;
+        System.out.println("right");
+        if (equals(n.right, right)) {
+            System.out.println("don't copy right");
+            return n;
+        }
+        System.out.println("CCOOPPYY right");
         n = copyIfNeeded(n);
         n.right = right;
         return n;
     }
 
+    protected boolean equals(List<Expr> l1, List<Expr> l2) {
+        if (l1 == null || l2 == null) {
+            return false;
+        }
+        if (l1.size() != l2.size()) {
+            return false;
+        }
+        for (int i = 0; i < l1.size(); i++) {
+            if (l1.get(i) != l2.get(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Reconstruct the expression. */
-    protected <N extends MaybeAssign_c> N reconstruct(N n, Expr left, List<Expr> right) {
+    protected <N extends MaybeAssign_c> N reconstruct(N n, Expr left, Expr maybeLabel, List<Expr> right) {
+        System.out.println("reconstruct");
         n = left(n, left);
+        n = label(n, maybeLabel);
         n = right(n, right);
         return n;
     }
 
     @Override
     public Node visitChildren(NodeVisitor v) {
+        System.out.println("visitChildren");
         Expr left = visitChild(this.left, v);
-        List<Expr> r = new LinkedList<Expr>();
-        for (Expr e : this.right) {
-            r.add(visitChild(e, v));
-        }
-        return reconstruct(this, left, r);
+        // Expr label = this.maybeLabel;
+        Expr label = visitChild(this.maybeLabel, v);
+        // List<Expr> r = new LinkedList<Expr>();
+        // for (Expr e : this.right) {
+        //     r.add(visitChild(e, v));
+        // }
+        List<Expr> right = visitList(this.right, v);
+        return reconstruct(this, left, label, right);
+        // return reconstruct(this, left, maybeLabel, r);
     }
 
     public Node typeCheck(TypeChecker tc, TypeSystem ts, Type t, Expr e) throws SemanticException {
@@ -207,6 +246,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public Node typeCheck(TypeChecker tc) throws SemanticException {
+        System.out.println("typeCheck");
         TypeSystem ts = tc.typeSystem();
         Type t = left.type();
 
@@ -218,9 +258,17 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         // System.out.println("!!: " +op);
 
         // TODO: the input must be a constant String, so we can generate metadata.
-        // System.out.println(maybeLabel);
-        // System.out.println(maybeLabel.getClass());
-        // System.out.println(maybeLabel.type());
+        // TODO: the maybeLabel maybe:
+        // class polyglot.ast.AmbExpr_c
+        // class polyglot.ast.Call_c
+        // class polyglot.ast.Binary_c
+        // class polyglot.ast.StringLit_c
+        // How to handle it?
+
+        System.out.println(maybeLabel);
+        System.out.println(maybeLabel.toString());
+        System.out.println(maybeLabel.getClass());
+        System.out.println(maybeLabel.type());
         // System.out.println(tc);
         // System.out.println(ts);
         // if (!ts.isImplicitCastValid(maybeLabel.type(), ts.String())) {
@@ -237,6 +285,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
+        System.out.println("childExpectedType");
         if (child == left) {
             return child.type();
         }
@@ -289,6 +338,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public boolean throwsArithmeticException() {
+        System.out.println("throwsArithmeticException");
         // conservatively assume that any division or mod may throw
         // ArithmeticException this is NOT true-- floats and doubles don't
         // throw any exceptions ever...
@@ -339,6 +389,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
                 w.allowBreak(2, 2, " ", 1); // miser mode
                 w.begin(0);
                 printSubExpr(e, false, w, tr);
+                w.write(";");
                 w.end();
                 w.unifiedBreak(0);
                 w.write("break;");
@@ -357,6 +408,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public void dump(CodeWriter w) {
+        System.out.println("dump");
         super.dump(w);
         w.allowBreak(4, " ");
         w.begin(0);
@@ -369,6 +421,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public <T> List<T> acceptCFG(CFGBuilder<?> v, List<T> succs) {
+        System.out.println("acceptCFG");
         if (operator() == Assign.ASSIGN) {
             acceptCFGAssign(v);
         }
@@ -401,8 +454,8 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         return l;
     }
 
-    // @Override
-    // public Node copy(NodeFactory nf) {
-    //     return nf.Assign(this.position, this.left, this.op, this.right);
-    // }
+    @Override
+    public Node copy(NodeFactory nf) {
+        return ((MaybeNodeFactory) nf).MaybeAssign(this.position, this.left, this.op, this.maybeLabel, this.right);
+    }
 }
