@@ -1,5 +1,6 @@
 package edu.buffalo.cse.blue.maybe.ast;
 
+import java.util.*;
 import polyglot.ast.*;
 import polyglot.ast.Assign.Operator;
 
@@ -19,13 +20,13 @@ public class MaybeLocalAssign_c extends MaybeAssign_c implements MaybeLocalAssig
     private static final long serialVersionUID = SerialVersionUID.generate();
 
 //    @Deprecated
-    public MaybeLocalAssign_c(Position pos, Local left, Operator op, Expr right) {
-        this(pos, left, op, right, null);
+    public MaybeLocalAssign_c(Position pos, Local left, Operator op, Expr maybeLabel, List<Expr> right) {
+        this(pos, left, op, maybeLabel, right, null);
     }
 
-    public MaybeLocalAssign_c(Position pos, Local left, Operator op, Expr right,
+    public MaybeLocalAssign_c(Position pos, Local left, Operator op, Expr maybeLabel, List<Expr> right,
             Ext ext) {
-        super(pos, left, op, right, ext);
+        super(pos, left, op, maybeLabel, right, ext);
     }
 
     @Override
@@ -51,14 +52,16 @@ public class MaybeLocalAssign_c extends MaybeAssign_c implements MaybeLocalAssig
             return left();
         }
 
-        return right();
+        return right().get(0);
     }
 
     @Override
     protected void acceptCFGAssign(CFGBuilder<?> v) {
         // do not visit left()
         // l = e: visit e -> (l = e)
-        v.visitCFG(right(), this, EXIT);
+        for (Expr expr : right()) {
+            v.visitCFG(expr, this, EXIT);
+        }
     }
 
     @Override
@@ -72,7 +75,9 @@ public class MaybeLocalAssign_c extends MaybeAssign_c implements MaybeLocalAssig
         v.visitCFG(right(), this);
         */
 
-        v.visitCFG(left(), right(), ENTRY);
-        v.visitCFG(right(), this, EXIT);
+        for (Expr expr : right()) {
+            v.visitCFG(left(), expr, ENTRY);
+            v.visitCFG(expr, this, EXIT);
+        }
     }
 }

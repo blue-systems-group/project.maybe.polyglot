@@ -26,16 +26,18 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     protected Expr left;
     protected Operator op;
-    protected Expr right;
+    protected Expr maybeLabel;
+    protected List<Expr> right;
 
     // @Deprecated
-    public MaybeAssign_c(Position pos, Expr left, Operator op, Expr right) {
-        this(pos, left, op, right, null);
+    public MaybeAssign_c(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> right) {
+        this(pos, left, op, maybeLabel, right, null);
     }
 
-    public MaybeAssign_c(Position pos, Expr left, Operator op, Expr right, Ext ext) {
+    public MaybeAssign_c(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> right, Ext ext) {
         super(pos, ext);
         assert (left != null && op != null && right != null);
+        this.maybeLabel = maybeLabel;
         this.left = left;
         this.op = op;
         this.right = right;
@@ -64,6 +66,23 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     }
 
     @Override
+    public Expr label() {
+        return this.maybeLabel;
+    }
+
+    @Override
+    public MaybeAssign label(Expr label) {
+        return label(this, label);
+    }
+
+    protected <N extends MaybeAssign_c> N label(N n, Expr label) {
+        if (n.maybeLabel == maybeLabel) return n;
+        n = copyIfNeeded(n);
+        n.maybeLabel = label;
+        return n;
+    }
+
+    @Override
     public Operator operator() {
         return this.op;
     }
@@ -81,16 +100,16 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     }
 
     @Override
-    public Expr right() {
+    public List<Expr> right() {
         return this.right;
     }
 
     @Override
-    public MaybeAssign right(Expr right) {
+    public MaybeAssign right(List<Expr> right) {
         return right(this, right);
     }
 
-    protected <N extends MaybeAssign_c> N right(N n, Expr right) {
+    protected <N extends MaybeAssign_c> N right(N n, List<Expr> right) {
         if (n.right == right) return n;
         n = copyIfNeeded(n);
         n.right = right;
@@ -98,7 +117,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     }
 
     /** Reconstruct the expression. */
-    protected <N extends MaybeAssign_c> N reconstruct(N n, Expr left, Expr right) {
+    protected <N extends MaybeAssign_c> N reconstruct(N n, Expr left, List<Expr> right) {
         n = left(n, left);
         n = right(n, right);
         return n;
@@ -107,30 +126,22 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     @Override
     public Node visitChildren(NodeVisitor v) {
         Expr left = visitChild(this.left, v);
-        Expr right = visitChild(this.right, v);
-        return reconstruct(this, left, right);
+        List<Expr> r = new LinkedList<Expr>();
+        for (Expr e : this.right) {
+            r.add(visitChild(e, v));
+        }
+        return reconstruct(this, left, r);
     }
 
-    @Override
-    public Node typeCheck(TypeChecker tc) throws SemanticException {
-        Type t = left.type();
-        Type s = right.type();
+    public Node typeCheck(TypeChecker tc, TypeSystem ts, Type t, Expr e) throws SemanticException {
+        Type s = e.type();
 
-        TypeSystem ts = tc.typeSystem();
-
-        if (!(left instanceof Variable)) {
-            throw new SemanticException("Target of assignment must be a variable.",
-                                        position());
-        }
-
-        System.out.println("!!: " +op);
-
-        if (op == ASSIGN) {
+        if (op == Assign.ASSIGN) {
             if (!ts.isImplicitCastValid(s, t)
                     && !ts.typeEquals(s, t)
                     && !ts.numericConversionValid(t,
                                                   tc.lang()
-                                                    .constantValue(right,
+                                                    .constantValue(e,
                                                                    tc.lang()))) {
 
                 throw new SemanticException("Cannot assign " + s + " to " + t
@@ -140,7 +151,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
             return type(t);
         }
 
-        if (op == ADD_ASSIGN) {
+        if (op == Assign.ADD_ASSIGN) {
             // t += s
             if (ts.typeEquals(t, ts.String())
                     && ts.canCoerceToString(s, tc.context())) {
@@ -155,8 +166,8 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
                     + "numeric or String operands.", position());
         }
 
-        if (op == SUB_ASSIGN || op == MUL_ASSIGN || op == DIV_ASSIGN
-                || op == MOD_ASSIGN) {
+        if (op == Assign.SUB_ASSIGN || op == Assign.MUL_ASSIGN || op == Assign.DIV_ASSIGN
+                || op == Assign.MOD_ASSIGN) {
             if (t.isNumeric() && s.isNumeric()) {
                 return type(ts.promote(t, s));
             }
@@ -165,7 +176,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
                     + "numeric operands.", position());
         }
 
-        if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
+        if (op == Assign.BIT_AND_ASSIGN || op == Assign.BIT_OR_ASSIGN || op == Assign.BIT_XOR_ASSIGN) {
             if (t.isBoolean() && s.isBoolean()) {
                 return type(ts.Boolean());
             }
@@ -179,7 +190,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
                     + "integral or boolean operands.", position());
         }
 
-        if (op == SHL_ASSIGN || op == SHR_ASSIGN || op == USHR_ASSIGN) {
+        if (op == Assign.SHL_ASSIGN || op == Assign.SHR_ASSIGN || op == Assign.USHR_ASSIGN) {
             if (ts.isImplicitCastValid(t, ts.Long())
                     && ts.isImplicitCastValid(s, ts.Long())) {
                 // Only promote the left of a shift.
@@ -195,6 +206,36 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     }
 
     @Override
+    public Node typeCheck(TypeChecker tc) throws SemanticException {
+        TypeSystem ts = tc.typeSystem();
+        Type t = left.type();
+
+        if (!(left instanceof Variable)) {
+            throw new SemanticException("Target of assignment must be a variable.",
+                                        position());
+        }
+
+        // System.out.println("!!: " +op);
+
+        // TODO: the input must be a constant String, so we can generate metadata.
+        // System.out.println(maybeLabel);
+        // System.out.println(maybeLabel.getClass());
+        // System.out.println(maybeLabel.type());
+        // System.out.println(tc);
+        // System.out.println(ts);
+        // if (!ts.isImplicitCastValid(maybeLabel.type(), ts.String())) {
+        //     throw new SemanticException("Maybe label must be String type.",
+        //                                 maybeLabel.position());
+        // }
+
+        Node n = null;
+        for (Expr e : right) {
+            n = this.typeCheck(tc, ts, t, e);
+        }
+        return n;
+    }
+
+    @Override
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
         if (child == left) {
             return child.type();
@@ -202,18 +243,19 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
         // See JLS 2nd ed. 15.26.2
         TypeSystem ts = av.typeSystem();
-        if (op == ASSIGN) {
+        if (op == Assign.ASSIGN) {
             return left.type();
         }
-        if (op == ADD_ASSIGN) {
+        if (op == Assign.ADD_ASSIGN) {
             if (ts.typeEquals(ts.String(), left.type())) {
                 return child.type();
             }
         }
-        if (op == ADD_ASSIGN || op == SUB_ASSIGN || op == MUL_ASSIGN
-                || op == DIV_ASSIGN || op == MOD_ASSIGN || op == SHL_ASSIGN
-                || op == SHR_ASSIGN || op == USHR_ASSIGN) {
-            if (left.type().isNumeric() && right.type().isNumeric()) {
+        if (op == Assign.ADD_ASSIGN || op == Assign.SUB_ASSIGN || op == Assign.MUL_ASSIGN
+                || op == Assign.DIV_ASSIGN || op == Assign.MOD_ASSIGN || op == Assign.SHL_ASSIGN
+                || op == Assign.SHR_ASSIGN || op == Assign.USHR_ASSIGN) {
+            // if (left.type().isNumeric() && right.type().isNumeric()) {
+            if (left.type().isNumeric()) {
                 try {
                     return ts.promote(left.type(), child.type());
                 }
@@ -224,11 +266,12 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
             // Assume the typechecker knew what it was doing
             return child.type();
         }
-        if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
+        if (op == Assign.BIT_AND_ASSIGN || op == Assign.BIT_OR_ASSIGN || op == Assign.BIT_XOR_ASSIGN) {
             if (left.type().isBoolean()) {
                 return ts.Boolean();
             }
-            if (left.type().isNumeric() && right.type().isNumeric()) {
+            if (left.type().isNumeric()) {
+            // if (left.type().isNumeric() && right.type().isNumeric()) {
                 try {
                     return ts.promote(left.type(), child.type());
                 }
@@ -249,7 +292,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         // conservatively assume that any division or mod may throw
         // ArithmeticException this is NOT true-- floats and doubles don't
         // throw any exceptions ever...
-        return op == DIV_ASSIGN || op == MOD_ASSIGN;
+        return op == Assign.DIV_ASSIGN || op == Assign.MOD_ASSIGN;
     }
 
     @Override
@@ -259,13 +302,57 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-        printSubExpr(left, true, w, tr);
-        w.write(" ");
-        w.write(op.toString());
-        w.allowBreak(2, 2, " ", 1); // miser mode
+        // printSubExpr(left, true, w, tr);
+        // w.write(" ");
+        // w.write(op.toString());
+        // w.allowBreak(2, 2, " ", 1); // miser mode
+        // w.begin(0);
+        // printSubExpr(right, false, w, tr);
+        // w.end();
+
         w.begin(0);
-        printSubExpr(right, false, w, tr);
+        w.write("switch ((");
+        printBlock(maybeLabel, w, tr);
+        // TODO: use maybe library to get choices
+        w.write(").length() % 2) {");
+        w.unifiedBreak(4);
+        w.begin(0);
+
+        int i = 0;
+
+        // w.write("case " + i++ + ": ");
+        // printBlock(consequent, w, tr);
+        // w.unifiedBreak(0);
+        // w.write("break;");
+        boolean first = true;
+        if (right != null) {
+            for (Expr e : right) {
+                if (first) {
+                    first = false;
+                } else {
+                    w.unifiedBreak(0);
+                }
+                w.write("case " + i++ + ": ");
+                printSubExpr(left, true, w, tr);
+                w.write(" ");
+                w.write(op.toString());
+                w.allowBreak(2, 2, " ", 1); // miser mode
+                w.begin(0);
+                printSubExpr(e, false, w, tr);
+                w.end();
+                w.unifiedBreak(0);
+                w.write("break;");
+            }
+        }
+        w.unifiedBreak(0);
+        w.write("default: ");
+        w.unifiedBreak(0);
+        // TODO: handle default, choices out of range error
+        w.write("break;");
+
         w.end();
+        w.unifiedBreak(0);
+        w.write("}");
     }
 
     @Override
@@ -282,7 +369,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public <T> List<T> acceptCFG(CFGBuilder<?> v, List<T> succs) {
-        if (operator() == ASSIGN) {
+        if (operator() == Assign.ASSIGN) {
             acceptCFGAssign(v);
         }
         else {

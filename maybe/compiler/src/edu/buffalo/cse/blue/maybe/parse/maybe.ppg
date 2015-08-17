@@ -23,41 +23,41 @@ parser Grm extends polyglot.parse.Grm {:
         return nf.Maybe(pos, cond, alternatives);
     }
 
-    public MaybeAssign MaybeAssign(Position pos, Expr left, Operator op, Expr right) throws Exception {
-        return nf.MaybeAssign(pos, left, op, right);
+    public MaybeAssign MaybeAssign(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> right) throws Exception {
+        return nf.MaybeAssign(pos, left, op, maybeLabel, right);
     }
 
-    public MaybeAssign MaybeLocalAssign(Position pos, Local left, Operator op, Expr right) throws Exception {
-        return nf.MaybeLocalAssign(pos, left, op, right);
+    public MaybeAssign MaybeLocalAssign(Position pos, Local left, Operator op, Expr maybeLabel, List<Expr> right) throws Exception {
+        return nf.MaybeLocalAssign(pos, left, op, maybeLabel, right);
     }
 
-    public MaybeAssign MaybeFieldAssign(Position pos, Field left, Operator op, Expr right) throws Exception {
-        return nf.MaybeFieldAssign(pos, left, op, right);
+    public MaybeAssign MaybeFieldAssign(Position pos, Field left, Operator op, Expr maybeLabel, List<Expr> right) throws Exception {
+        return nf.MaybeFieldAssign(pos, left, op, maybeLabel, right);
     }
 
-    public MaybeAssign MaybeArrayAccessAssign(Position pos, ArrayAccess left, Operator op, Expr right) throws Exception {
-        return nf.MaybeArrayAccessAssign(pos, left, op, right);
+    public MaybeAssign MaybeArrayAccessAssign(Position pos, ArrayAccess left, Operator op, Expr maybeLabel, List<Expr> right) throws Exception {
+        return nf.MaybeArrayAccessAssign(pos, left, op, maybeLabel, right);
     }
 
-    public MaybeAssign MaybeAmbAssign(Position pos, Local left, Operator op, Expr right) throws Exception {
-        return nf.MaybeAmbAssign(pos, left, op, right);
+    public MaybeAssign MaybeAmbAssign(Position pos, Local left, Operator op, Expr maybeLabel, List<Expr> right) throws Exception {
+        return nf.MaybeAmbAssign(pos, left, op, maybeLabel, right);
     }
 
-    public List<LocalDecl> variableDeclarators(TypeNode a, List<VarDeclarator> b, Flags flags) throws Exception {
-        List<LocalDecl> l = new LinkedList<>();
-        for (VarDeclarator d : b) {
-            l.add(nf.LocalDecl(pos(d), flags, array(a, d.dims),
-            d.name, d.init));
-        }
-        return l;
-    }
+    // public List<LocalDecl> variableDeclarators(TypeNode a, List<VarDeclarator> b, Flags flags) throws Exception {
+    //     List<LocalDecl> l = new LinkedList<>();
+    //     for (VarDeclarator d : b) {
+    //         l.add(nf.LocalDecl(pos(d), flags, array(a, d.dims),
+    //         d.name, d.init));
+    //     }
+    //     return l;
+    // }
 :};
 
 terminal Token MAYBE, MAYBEOR;
 non terminal Maybe maybe_statement;
 non terminal List<Block> maybe_clauses;
 non terminal List<Expr> maybe_variable_initializer;
-non terminal Expr maybe_variable;
+// non terminal Expr maybe_variable;
 // non terminal List<Block> maybe_clauses, maybe_opt;
 
 start with goal;
@@ -99,19 +99,20 @@ maybe_statement ::=
 
 extend assignment ::=
         // Expr
-        left_hand_side:a assignment_operator:m maybe_variable:c
+        left_hand_side:a assignment_operator:b MAYBE LPAREN expression:c RPAREN LBRACE maybe_variable_initializer:d RBRACE:n
         // left_hand_side:a EQ:b MAYBE:n LPAREN expression:c RPAREN maybe_variable_initializer:d
         {:
-            RESULT = parser.nf.MaybeAssign(parser.pos(a, c), a, m, c);
+            RESULT = parser.nf.MaybeAssign(parser.pos(a, n), a, b, c, d);
         :}
     ;
 
-maybe_variable ::=
-    MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
-    {:
-        RESULT = parser.nf.MaybeVariable(parser.pos(n, c), b, c);
-    :}
-;
+// maybe_variable ::=
+//     MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
+//     {:
+//         RESULT = parser.nf.MaybeVariable(parser.pos(n, c), b, c);
+//     :}
+// ;
+
 // variable_declarators ::=
 //                     // List of VarDeclarator
 //         variable_declarator:a
@@ -134,11 +135,11 @@ maybe_variable ::=
 //             {: RESULT = a;
 //                a.init = b; :}
 // TODO: or we need extend variable_initializer that can handle maybe?
-extend variable_declarator ::=
-        variable_declarator_id:a EQ maybe_variable:b
-            {: RESULT = a;
-               a.init = b; :}
-;
+// extend variable_declarator ::=
+//         variable_declarator_id:a EQ maybe_variable:b
+//             {: RESULT = a;
+//                a.init = b; :}
+// ;
 
 maybe_variable_initializer ::=
     variable_initializer:a

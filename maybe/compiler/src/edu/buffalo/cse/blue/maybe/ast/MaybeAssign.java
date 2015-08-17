@@ -1,5 +1,8 @@
 package edu.buffalo.cse.blue.maybe.ast;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import polyglot.ast.*;
 import polyglot.ast.Assign.Operator;
 import polyglot.types.Flags;
@@ -61,6 +64,10 @@ public interface MaybeAssign extends Expr {
      */
     MaybeAssign left(Expr left);
 
+    Expr label();
+
+    MaybeAssign label(Expr label);
+
     /**
      * The assignment's operator.
      */
@@ -74,12 +81,12 @@ public interface MaybeAssign extends Expr {
     /**
      * Right child (source) of the assignment.
      */
-    Expr right();
+    List<Expr> right();
 
     /**
      * Set the right child (source) of the assignment.
      */
-    MaybeAssign right(Expr right);
+    MaybeAssign right(List<Expr> right);
 
     /** Get the throwsArithmeticException of the expression. */
     boolean throwsArithmeticException();
