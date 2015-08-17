@@ -23,7 +23,8 @@ public class Hello {
 
         int[] array = new int[3];
         array = new int[]{1, 2, 3};
-        array = maybe("array") {{1}, {2}, {3}};
+        // TODO: syntax error
+        // array = maybe("array") {{1}, {2}, {3}};
         // TODO: error below
         // array[0] = maybe("array") {1, 2, 3};
 
