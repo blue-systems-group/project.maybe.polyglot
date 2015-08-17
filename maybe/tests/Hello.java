@@ -29,7 +29,8 @@ public class Hello {
         // array[0] = maybe("array") {1, 2, 3};
 
         // DONE: can indentify below.
-        int b = maybe("b") {10, 2, 3};
+        // TODO: implement this.
+        // int b = maybe("b") {10, 2, 3};
     }
 
     public static void main(String[] args) {
