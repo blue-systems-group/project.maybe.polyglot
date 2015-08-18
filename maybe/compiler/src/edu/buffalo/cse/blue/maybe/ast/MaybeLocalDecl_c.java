@@ -424,24 +424,73 @@ public class MaybeLocalDecl_c extends Stmt_c implements MaybeLocalDecl {
             w.write(" ");
         }
         tr.print(this, name, w);
+        w.write(";");
 
+        w.unifiedBreak(0);
+        w.begin(0);
+        w.write("switch ((");
+        printBlock(label, w, tr);
+        // TODO: use maybe library to get choices
+        w.write(").length() % 2) {");
+        w.unifiedBreak(4);
+        w.begin(0);
+
+        int i = 0;
+
+        boolean first = true;
         if (alternatives != null) {
-            w.write(" =");
-            w.allowBreak(2, " ");
-            print(alternatives.get(0), w, tr);
+            for (Expr e : alternatives) {
+                if (first) {
+                    first = false;
+                } else {
+                    w.unifiedBreak(0);
+                }
+                w.write("case " + i++ + ": ");
+                w.unifiedBreak(4);
+                tr.print(this, name, w);
+                // // printSubExpr(left, true, w, tr);
+                w.write(" =");
+                w.allowBreak(2, " ");
+                // // w.allowBreak(2, 2, " ", 1); // miser mode
+                print(e, w, tr);
+                // // printSubExpr(e, false, w, tr);
+                w.write(";");
+                w.unifiedBreak(4);
+                w.write("break;");
+            }
         }
+        w.unifiedBreak(0);
+        w.write("default: ");
+        w.unifiedBreak(4);
+        // TODO: handle default, choices out of range error
+        w.write("break;");
+
+        w.unifiedBreak(0);
+        w.write("}");
+        w.end();
+        //
+        // w.end();
+        // w.unifiedBreak(0);
+        // w.write("}");
+
+        // if (alternatives != null) {
+        //     w.write(" =");
+        //     w.allowBreak(2, " ");
+        //     print(alternatives.get(1), w, tr);
+        // }
         // if (init != null) {
         //     w.write(" =");
         //     w.allowBreak(2, " ");
         //     print(init, w, tr);
         // }
 
-        if (printSemi) {
-            w.write(";");
-        }
-
-        tr.printType(printType);
-        tr.appendSemicolon(printSemi);
+// --------------
+        // if (printSemi) {
+        //     w.write(";");
+        // }
+        //
+        // tr.printType(printType);
+        // tr.appendSemicolon(printSemi);
     }
 
     @Override
@@ -463,7 +512,38 @@ public class MaybeLocalDecl_c extends Stmt_c implements MaybeLocalDecl {
 
     @Override
     public <T> List<T> acceptCFG(CFGBuilder<?> v, List<T> succs) {
+        // List<Term> cases = new LinkedList<>();
+        // List<Integer> entry = new LinkedList<>();
+        // boolean hasDefault = false;
+        //
+        // for (SwitchElement s : elements) {
+        //     if (s instanceof Case) {
+        //         cases.add(s);
+        //         entry.add(new Integer(ENTRY));
+        //
+        //         if (((Case) s).expr() == null) {
+        //             hasDefault = true;
+        //         }
+        //     }
+        // }
+        //
+        // // If there is no default case, add an edge to the end of the switch.
+        // if (!hasDefault) {
+        //     cases.add(this);
+        //     entry.add(new Integer(EXIT));
+        // }
+        //
+        // v.visitCFG(expr, FlowGraph.EDGE_KEY_OTHER, cases, entry);
+        // v.push(this).visitCFGList(elements, this, EXIT);
+        //
+        // return succs;
         // TODO: rewrite below
+        v.visitCFG(type(), this, ENTRY);
+        v.visitCFG(type(), this, EXIT);
+        v.visitCFG(label(), this, ENTRY);
+        v.visitCFG(label(), this, EXIT);
+        v.visitCFGList(alternatives(), this, ENTRY);
+        v.visitCFGList(alternatives(), this, EXIT);
         // if (init() != null) {
         //     v.visitCFG(type(), init(), ENTRY);
         //     v.visitCFG(init(), this, EXIT);
