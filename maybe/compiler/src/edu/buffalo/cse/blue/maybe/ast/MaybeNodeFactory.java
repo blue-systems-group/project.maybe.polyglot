@@ -16,6 +16,7 @@ import java.util.*;
 public interface MaybeNodeFactory extends NodeFactory {
     // TODO: Declare any factory methods for new AST nodes.
     Maybe Maybe(Position pos, Expr cond, List<Block> alternatives);
+    MaybeLocalDecl MaybeLocalDecl(Position pos, Flags flags, TypeNode type, Id name, Expr label, List<Expr> alternatives);
 
     MaybeAssign MaybeAssign(Position pos, Expr left, Assign.Operator op, Expr maybeLabel, List<Expr> right);
 

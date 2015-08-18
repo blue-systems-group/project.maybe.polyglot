@@ -3,6 +3,7 @@ package edu.buffalo.cse.blue.maybe.ast;
 import polyglot.ast.*;
 import polyglot.lex.*;
 import polyglot.util.*;
+import polyglot.types.*;
 
 import java.util.*;
 
@@ -93,4 +94,12 @@ public class MaybeNodeFactory_c extends NodeFactory_c implements MaybeNodeFactor
     //     n = del(n, delFactory().delLocalDecl());
     //     return n;
     // }
+
+    @Override
+    public MaybeLocalDecl MaybeLocalDecl(Position pos, Flags flags, TypeNode type, Id name, Expr label, List<Expr> alternatives) {
+        MaybeLocalDecl n = new MaybeLocalDecl_c(pos, flags, type, name, label, alternatives);
+        n = ext(n, extFactory().extAmbAssign());
+        n = del(n, delFactory().delAmbAssign());
+        return n;
+    }
 }

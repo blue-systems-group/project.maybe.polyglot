@@ -1,10 +1,18 @@
 public class Hello {
+    private int i = maybe("i") {1, 2, 3};
+    private Hello self = maybe("self") {new Hello()};
+
     public static String getLabel(String label) {
         return "" + label;
     }
 
     public static void maybeVariable() {
-        // TODO: implement mechanism
+        // DONE: can indentify below.
+        // TODO: implement this.
+        int b = maybe("b") {10, 2, 3}, c = maybe("c") {3, 2, 1}, d = maybe("d") {4, 5, 6};
+
+        // DONE: implement mechanism
+        // TODO: fix bug, maybe expression can't be visitChild
         int a = 1;
         String label = "a";
         a = maybe(label) {1, 2, 3};
@@ -33,10 +41,6 @@ public class Hello {
         // array = maybe("array") {{1}, {2}, {3}};
         // TODO: error below
         // array[0] = maybe("array") {1, 2, 3};
-
-        // DONE: can indentify below.
-        // TODO: implement this.
-        // int b = maybe("b") {10, 2, 3};
     }
 
     public static void main(String[] args) {

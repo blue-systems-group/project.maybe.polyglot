@@ -43,14 +43,24 @@ parser Grm extends polyglot.parse.Grm {:
         return nf.MaybeAmbAssign(pos, left, op, maybeLabel, right);
     }
 
-    // public List<LocalDecl> variableDeclarators(TypeNode a, List<VarDeclarator> b, Flags flags) throws Exception {
-    //     List<LocalDecl> l = new LinkedList<>();
-    //     for (VarDeclarator d : b) {
-    //         l.add(nf.LocalDecl(pos(d), flags, array(a, d.dims),
-    //         d.name, d.init));
-    //     }
-    //     return l;
-    // }
+    public List<LocalDecl> variableDeclarators(TypeNode a, List<VarDeclarator> b, Flags flags) throws Exception {
+        List<LocalDecl> l = new LinkedList<>();
+        for (VarDeclarator d : b) {
+            if (d instanceof MaybeVarDeclarator) {
+                System.out.println("MaybeVarDeclarator");
+                MaybeVarDeclarator m = (MaybeVarDeclarator) d;
+                l.add(nf.MaybeLocalDecl(pos(m), flags, array(a, m.dims), m.name, m.label, m.alternatives));
+            } else {
+                l.add(nf.LocalDecl(pos(d), flags, array(a, d.dims),
+                d.name, d.init));
+            }
+        }
+        return l;
+    }
+
+    public MaybeLocalDecl MaybeLocalDecl(Position pos, Flags flags, TypeNode type, Id name, Expr label, List<Expr> alternatives) {
+        return nf.MaybeLocalDecl(pos, flags, type, name, label, alternatives);
+    }
 :};
 
 terminal Token MAYBE, MAYBEOR;
@@ -84,18 +94,15 @@ maybe_statement ::=
     :}
 ;
 
-// extend variable_declarator ::=
-//     //             // VarDeclarator
-//     //     variable_declarator_id:a
-//     //         {: RESULT = a; :}
-//     // |   variable_declarator_id:a EQ variable_initializer:b
-//     //         {: RESULT = a;
-//     //            a.init = b; :}
-//         variable_declarator_id:a EQ MAYBE:n LPAREN expression:b RPAREN maybe_variable_initializer:b
-//         {:
-//             RESULT = a;
-//         :}
-// ;
+extend variable_declarator ::=
+        variable_declarator_id:a EQ MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
+        {:
+            MaybeVarDeclarator maybeVarDeclarator = new MaybeVarDeclarator(a);
+            RESULT = maybeVarDeclarator;
+            maybeVarDeclarator.label = b;
+            maybeVarDeclarator.alternatives = c;
+        :}
+;
 
 extend assignment ::=
         // Expr
