@@ -9,7 +9,7 @@ public class Hello {
     public static void maybeVariable() {
         // DONE: can indentify below.
         // TODO: implement this.
-        int b = maybe("b") {10, 2, 3}, c = maybe("c") {3, 2, 1}, d = maybe("d") {4, 5, 6};
+        int b = maybe("b") {10, 2, 3}, c = maybe("c") {3, 2, 1}, d = maybe("d") {4, 5, 6}, e = 2;
 
         // DONE: implement mechanism
         // TODO: fix bug, maybe expression can't be visitChild
