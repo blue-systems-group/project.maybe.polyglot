@@ -1,5 +1,7 @@
 // Assumes polyglot.jar is in classpath
 include "polyglot/parse/java12.cup"
+// TODO: change to java7 support
+// include "polyglot/ext/jl5/parse/jl5.ppg"
 
 package edu.buffalo.cse.blue.maybe.parse;
 
