@@ -424,6 +424,9 @@ public class MaybeLocalDecl_c extends Stmt_c implements MaybeLocalDecl {
             w.write(" ");
         }
         tr.print(this, name, w);
+        // TODO: allowBreak doesn't work well here
+        w.write(" = ");
+        print(alternatives.get(0), w, tr);
         w.write(";");
 
         w.unifiedBreak(0);
