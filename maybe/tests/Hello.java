@@ -8,17 +8,20 @@ public class Hello {
 
     public static void maybeVariable() {
         // DONE: can indentify below.
-        // TODO: implement this.
+        // DONE: implement this.
         int b = maybe("b") {10, 2, 3}, c = maybe("c") {3, 2, 1}, d = maybe("d") {4, 5, 6}, e = 2;
+        // TODO: pass init checker
+        System.out.println(b);
 
         // DONE: implement mechanism
-        // TODO: fix bug, maybe expression can't be visitChild
+        // DONE: fix bug, maybe expression can't be visitChild
         int a = 1;
         String label = "a";
         a = maybe(label) {1, 2, 3};
         a = maybe(getLabel(label)) {1, 2, 3};
         a = maybe(label + label) {1, 2, 3};
         a = maybe(label + "a") {1, 2, 3};
+        System.out.println(a);
 
         a = maybe("a") {1, 2, 3};
         a *= maybe("a") {1, 2, 3};
