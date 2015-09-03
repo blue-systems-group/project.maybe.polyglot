@@ -13,7 +13,7 @@ public class sym {
   public static final int STATIC = 28;
   public static final int MINUS = 62;
   public static final int COMP = 63;
-  public static final int MAYBE = 109;
+  public static final int MAYBE = 112;
   public static final int MULT = 15;
   public static final int INTERFACE = 42;
   public static final int SEMICOLON = 14;
@@ -22,16 +22,19 @@ public class sym {
   public static final int LTEQ = 72;
   public static final int ELSE = 44;
   public static final int ANDEQ = 91;
-  public static final int MAYBEOR = 110;
+  public static final int MAYBEOR = 113;
   public static final int PLUSEQ = 86;
   public static final int IF = 43;
   public static final int LONG_LITERAL_BD = 97;
+  public static final int ENUM = 110;
   public static final int OROR = 81;
   public static final int DOT = 13;
   public static final int LPAREN = 20;
   public static final int LONG_LITERAL = 96;
   public static final int CASE = 46;
+  public static final int AT = 111;
   public static final int RSHIFTEQ = 89;
+  public static final int ELLIPSIS = 109;
   public static final int LBRACK = 10;
   public static final int PUBLIC = 25;
   public static final int THROWS = 39;
@@ -229,6 +232,9 @@ public class sym {
   "GOTO",
   "STRICTFP",
   "ASSERT",
+  "ELLIPSIS",
+  "ENUM",
+  "AT",
   "MAYBE",
   "MAYBEOR"
   };
