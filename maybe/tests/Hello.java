@@ -1,4 +1,5 @@
 public class Hello {
+    // TODO: no code for initialize variables
     private int i = maybe("i") {1, 2, 3};
     private Hello self = maybe("self") {new Hello()};
 
