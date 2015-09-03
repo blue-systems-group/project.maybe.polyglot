@@ -8,12 +8,15 @@ import polyglot.types.Package;
 import polyglot.types.Type;
 import polyglot.types.Qualifier;
 import polyglot.util.*;
+import polyglot.ext.jl7.parse.*;
+import polyglot.ext.jl7.ast.*;
+import polyglot.ext.jl7.types.*;
 import java.util.*;
 
 /**
  * NodeFactory for maybe extension.
  */
-public interface MaybeNodeFactory extends NodeFactory {
+public interface MaybeNodeFactory extends JL7NodeFactory {
     // TODO: Declare any factory methods for new AST nodes.
     Maybe Maybe(Position pos, Expr cond, List<Block> alternatives);
     MaybeLocalDecl MaybeLocalDecl(Position pos, Flags flags, TypeNode type, Id name, Expr label, List<Expr> alternatives);
