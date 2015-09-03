@@ -10,6 +10,7 @@ import polyglot.frontend.*;
 import polyglot.main.*;
 import polyglot.types.*;
 import polyglot.util.*;
+import polyglot.ext.jl5.ast.JL5ExtFactory_c;
 import polyglot.ext.jl7.parse.*;
 import polyglot.ext.jl7.ast.*;
 import polyglot.ext.jl7.types.*;
@@ -52,7 +53,8 @@ public class ExtensionInfo extends JL7ExtensionInfo {
 
     @Override
     protected NodeFactory createNodeFactory() {
-        return new MaybeNodeFactory_c(MaybeLang_c.instance, new MaybeExtFactory_c());
+        return new MaybeNodeFactory_c(MaybeLang_c.instance,
+                                new MaybeExtFactory_c(new JL7ExtFactory_c(new JL5ExtFactory_c())));
     }
 
     @Override
