@@ -10,6 +10,10 @@ import polyglot.frontend.*;
 import polyglot.main.*;
 import polyglot.types.*;
 import polyglot.util.*;
+import polyglot.ext.jl7.parse.*;
+import polyglot.ext.jl7.ast.*;
+import polyglot.ext.jl7.types.*;
+import polyglot.ext.jl7.*;
 
 import java.io.*;
 import java.util.Set;
@@ -17,7 +21,7 @@ import java.util.Set;
 /**
  * Extension information for maybe extension.
  */
-public class ExtensionInfo extends polyglot.frontend.JLExtensionInfo {
+public class ExtensionInfo extends JL7ExtensionInfo {
     static {
         // force Topics to load
         @SuppressWarnings("unused")
