@@ -149,18 +149,15 @@ public class MaybeLocalDecl_c extends Stmt_c implements MaybeLocalDecl {
 
     @Override
     public Expr init() {
-        return init;
+        return this.alternatives.get(0);
     }
 
     @Override
     public MaybeLocalDecl init(Expr init) {
-        return label(this, init);
+        return init(this, init);
     }
 
     protected <N extends MaybeLocalDecl_c> N init(N n, Expr init) {
-        if (n.init == init) return n;
-        n = copyIfNeeded(n);
-        n.init = init;
         return n;
     }
 
@@ -410,7 +407,7 @@ public class MaybeLocalDecl_c extends Stmt_c implements MaybeLocalDecl {
     @Override
     public String toString() {
         return flags.translate() + type + " " + name
-                + (label != null ? " = " + label : "") + ";";
+                + " = maybe(" + (label != null ? label : "") + ") " + alternatives + ";";
     }
 
     @Override

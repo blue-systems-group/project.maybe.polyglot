@@ -9,7 +9,18 @@ import polyglot.types.LocalInstance;
  * A {@code LocalDecl} is an immutable representation of a local variable
  * declaration statement: a type, a name and an optional initializer.
  */
-public interface MaybeLocalDecl extends ForInit, VarDecl, VarInit, LocalDecl {
+public interface MaybeLocalDecl extends LocalDecl {
+    /** Get the declaration's initializer expression, or null. */
+    Expr init();
+
+    /** Set the declaration's initializer expression. */
+    MaybeLocalDecl init(Expr init);
+
+    /**
+     * Set the type object for the local declaration.
+     */
+    LocalDecl localInstance(LocalInstance li);
+
     /** Set the declaration's flags. */
     MaybeLocalDecl flags(Flags flags);
 
@@ -33,9 +44,4 @@ public interface MaybeLocalDecl extends ForInit, VarDecl, VarInit, LocalDecl {
 
     /** Set the declaration's maybe alternatives. */
     MaybeLocalDecl alternatives(List<Expr> alternatives);
-
-    /**
-     * Set the type object for the local declaration.
-     */
-    MaybeLocalDecl localInstance(LocalInstance li);
 }

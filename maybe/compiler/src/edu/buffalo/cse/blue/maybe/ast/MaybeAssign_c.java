@@ -362,7 +362,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public String toString() {
-        return left + " " + op + " " + alternatives;
+        return left + " " + op + " maybe(" + maybeLabel + ") " + alternatives;
     }
 
     @Override
