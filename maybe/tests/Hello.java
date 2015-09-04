@@ -19,12 +19,13 @@ public class Hello {
         // DONE: fix bug, maybe expression can't be visitChild
         int a = 1;
         String label = "a";
-        // TODO: fix edu.buffalo.cse.blue.maybe.ast.MaybeLocalAssign_c cannot be cast to polyglot.ast.Assign
-        a = 2;
+        // DONE: fix edu.buffalo.cse.blue.maybe.ast.MaybeLocalAssign_c cannot be cast to polyglot.ast.Assign
         a = maybe(label) {1, 2, 3};
         a = maybe(getLabel(label)) {1, 2, 3};
         a = maybe(label + label) {1, 2, 3};
         a = maybe(label + "a") {1, 2, 3};
+        // DONE: syntax error prompt
+        // a = maybe(label) {};
         System.out.println(a);
         String str = "";
         str = maybe("str") {"1", "2"};
