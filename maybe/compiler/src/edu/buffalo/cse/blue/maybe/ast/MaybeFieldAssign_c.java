@@ -27,13 +27,13 @@ public class MaybeFieldAssign_c extends MaybeAssign_c implements MaybeFieldAssig
     private static final long serialVersionUID = SerialVersionUID.generate();
 
 //    @Deprecated
-    public MaybeFieldAssign_c(Position pos, Field left, Operator op, Expr maybeLabel, List<Expr> right) {
-        this(pos, left, op, maybeLabel, right, null);
+    public MaybeFieldAssign_c(Position pos, Field left, Operator op, Expr maybeLabel, List<Expr> alternatives) {
+        this(pos, left, op, maybeLabel, alternatives, null);
     }
 
-    public MaybeFieldAssign_c(Position pos, Field left, Operator op, Expr maybeLabel, List<Expr> right,
+    public MaybeFieldAssign_c(Position pos, Field left, Operator op, Expr maybeLabel, List<Expr> alternatives,
             Ext ext) {
-        super(pos, left, op, maybeLabel, right, ext);
+        super(pos, left, op, maybeLabel, alternatives, ext);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class MaybeFieldAssign_c extends MaybeAssign_c implements MaybeFieldAssig
                 return f;
             }
             else {
-                return right().get(0);
+                return alternatives().get(0);
             }
         }
     }
@@ -76,14 +76,14 @@ public class MaybeFieldAssign_c extends MaybeAssign_c implements MaybeFieldAssig
             Expr o = (Expr) f.target();
 
             //     o.f = e: visit o -> e -> (o.f = e)
-            for (Expr expr : right()) {
+            for (Expr expr : alternatives()) {
                 v.visitCFG(o, expr, ENTRY);
                 v.visitCFG(expr, this, EXIT);
             }
         }
         else {
             //       T.f = e: visit e -> (T.f OP= e)
-            for (Expr expr : right()) {
+            for (Expr expr : alternatives()) {
                 v.visitCFG(expr, this, EXIT);
             }
         }
@@ -100,18 +100,18 @@ public class MaybeFieldAssign_c extends MaybeAssign_c implements MaybeFieldAssig
             // o.f OP= e: visit o -> o.f -> e -> (o.f OP= e)
             v.visitCFG(o, f);
             v.visitThrow(f);
-            v.edge(f, right().entry());
-            v.visitCFG(right(), this);
+            v.edge(f, alternatives().entry());
+            v.visitCFG(alternatives(), this);
         }
         else {
             // T.f OP= e: visit T.f -> e -> (T.f OP= e)
             v.visitThrow(f);
-            v.edge(f, right().entry());
-            v.visitCFG(right(), this);
+            v.edge(f, alternatives().entry());
+            v.visitCFG(alternatives(), this);
         }
         */
 
-        for (Expr expr : right()) {
+        for (Expr expr : alternatives()) {
             v.visitCFG(left(), expr, ENTRY);
             v.visitCFG(expr, this, EXIT);
         }
@@ -140,7 +140,7 @@ public class MaybeFieldAssign_c extends MaybeAssign_c implements MaybeFieldAssig
         Expr left = visitChild(left(), rw);
         // if (!left.isDisambiguated()) {
         //     // Need to have an ambiguous assignment
-        //     return rw.nodeFactory().AmbAssign(position, left, op, right);
+        //     return rw.nodeFactory().AmbAssign(position, left, op, alternatives);
         // }
         MaybeFieldAssign_c n = (MaybeFieldAssign_c) super.extRewrite(rw);
         n = left(n, left);

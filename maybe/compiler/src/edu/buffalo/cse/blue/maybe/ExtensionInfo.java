@@ -10,6 +10,11 @@ import polyglot.frontend.*;
 import polyglot.main.*;
 import polyglot.types.*;
 import polyglot.util.*;
+import polyglot.ext.jl5.ast.JL5ExtFactory_c;
+import polyglot.ext.jl7.parse.*;
+import polyglot.ext.jl7.ast.*;
+import polyglot.ext.jl7.types.*;
+import polyglot.ext.jl7.*;
 
 import java.io.*;
 import java.util.Set;
@@ -17,7 +22,7 @@ import java.util.Set;
 /**
  * Extension information for maybe extension.
  */
-public class ExtensionInfo extends polyglot.frontend.JLExtensionInfo {
+public class ExtensionInfo extends JL7ExtensionInfo {
     static {
         // force Topics to load
         @SuppressWarnings("unused")
@@ -48,7 +53,8 @@ public class ExtensionInfo extends polyglot.frontend.JLExtensionInfo {
 
     @Override
     protected NodeFactory createNodeFactory() {
-        return new MaybeNodeFactory_c(MaybeLang_c.instance, new MaybeExtFactory_c());
+        return new MaybeNodeFactory_c(MaybeLang_c.instance,
+                                new MaybeExtFactory_c(new JL7ExtFactory_c(new JL5ExtFactory_c())));
     }
 
     @Override

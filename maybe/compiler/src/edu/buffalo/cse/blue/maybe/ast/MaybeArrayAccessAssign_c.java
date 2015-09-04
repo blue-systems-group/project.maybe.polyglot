@@ -26,13 +26,13 @@ public class MaybeArrayAccessAssign_c extends MaybeAssign_c implements MaybeArra
 
 //    @Deprecated
     public MaybeArrayAccessAssign_c(Position pos, ArrayAccess left, Operator op,
-            Expr maybeLabel, List<Expr> right) {
-        this(pos, left, op, maybeLabel, right, null);
+            Expr maybeLabel, List<Expr> alternatives) {
+        this(pos, left, op, maybeLabel, alternatives, null);
     }
 
     public MaybeArrayAccessAssign_c(Position pos, ArrayAccess left, Operator op,
-            Expr maybeLabel, List<Expr> right, Ext ext) {
-        super(pos, left, op, maybeLabel, right, ext);
+            Expr maybeLabel, List<Expr> alternatives, Ext ext) {
+        super(pos, left, op, maybeLabel, alternatives, ext);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class MaybeArrayAccessAssign_c extends MaybeAssign_c implements MaybeArra
         ArrayAccess a = left();
 
         //    a[i] = e: visit a -> i -> e -> (a[i] = e)
-        for (Expr expr : right()) {
+        for (Expr expr : alternatives()) {
             v.visitCFG(a.array(), a.index(), ENTRY);
             v.visitCFG(a.index(), expr, ENTRY);
             v.visitCFG(expr, this, EXIT);
@@ -83,11 +83,11 @@ public class MaybeArrayAccessAssign_c extends MaybeAssign_c implements MaybeArra
         v.visitCFG(a.array(), a.index().entry());
         v.visitCFG(a.index(), a);
         v.visitThrow(a);
-        v.edge(a, right().entry());
-        v.visitCFG(right(), this);
+        v.edge(a, alternatives().entry());
+        v.visitCFG(alternatives(), this);
         */
 
-        for (Expr expr : right()) {
+        for (Expr expr : alternatives()) {
             v.visitCFG(left(), expr, ENTRY);
             v.visitCFG(expr, this, EXIT);
         }

@@ -15,7 +15,7 @@ import polyglot.util.Enum;
 /**
  * An {@code Assign} represents a Java assignment expression.
  */
-public interface MaybeAssign extends Expr {
+public interface MaybeAssign extends Assign {
     /** Assignment operator. */
     // public static class Operator extends Enum {
     //     private static final long serialVersionUID =
@@ -33,22 +33,22 @@ public interface MaybeAssign extends Expr {
     //     }
     // }
 
-    public static final Operator ASSIGN = new Assign.Operator("=", null);
-    public static final Operator ADD_ASSIGN = new Assign.Operator("+=", Binary.ADD);
-    public static final Operator SUB_ASSIGN = new Assign.Operator("-=", Binary.SUB);
-    public static final Operator MUL_ASSIGN = new Assign.Operator("*=", Binary.MUL);
-    public static final Operator DIV_ASSIGN = new Assign.Operator("/=", Binary.DIV);
-    public static final Operator MOD_ASSIGN = new Assign.Operator("%=", Binary.MOD);
-    public static final Operator BIT_AND_ASSIGN = new Assign.Operator("&=",
-                                                               Binary.BIT_AND);
-    public static final Operator BIT_OR_ASSIGN = new Assign.Operator("|=",
-                                                              Binary.BIT_OR);
-    public static final Operator BIT_XOR_ASSIGN = new Assign.Operator("^=",
-                                                               Binary.BIT_XOR);
-    public static final Operator SHL_ASSIGN = new Assign.Operator("<<=", Binary.SHL);
-    public static final Operator SHR_ASSIGN = new Assign.Operator(">>=", Binary.SHR);
-    public static final Operator USHR_ASSIGN =
-            new Assign.Operator(">>>=", Binary.USHR);
+    // public static final Operator ASSIGN = new Assign.Operator("=", null);
+    // public static final Operator ADD_ASSIGN = new Assign.Operator("+=", Binary.ADD);
+    // public static final Operator SUB_ASSIGN = new Assign.Operator("-=", Binary.SUB);
+    // public static final Operator MUL_ASSIGN = new Assign.Operator("*=", Binary.MUL);
+    // public static final Operator DIV_ASSIGN = new Assign.Operator("/=", Binary.DIV);
+    // public static final Operator MOD_ASSIGN = new Assign.Operator("%=", Binary.MOD);
+    // public static final Operator BIT_AND_ASSIGN = new Assign.Operator("&=",
+    //                                                            Binary.BIT_AND);
+    // public static final Operator BIT_OR_ASSIGN = new Assign.Operator("|=",
+    //                                                           Binary.BIT_OR);
+    // public static final Operator BIT_XOR_ASSIGN = new Assign.Operator("^=",
+    //                                                            Binary.BIT_XOR);
+    // public static final Operator SHL_ASSIGN = new Assign.Operator("<<=", Binary.SHL);
+    // public static final Operator SHR_ASSIGN = new Assign.Operator(">>=", Binary.SHR);
+    // public static final Operator USHR_ASSIGN =
+    //         new Assign.Operator(">>>=", Binary.USHR);
 
     /**
      * Left child (target) of the assignment.
@@ -64,8 +64,14 @@ public interface MaybeAssign extends Expr {
      */
     MaybeAssign left(Expr left);
 
+    /**
+     * return the maybe label
+     */
     Expr label();
 
+    /**
+     * set the maybe label
+     */
     MaybeAssign label(Expr label);
 
     /**
@@ -81,12 +87,16 @@ public interface MaybeAssign extends Expr {
     /**
      * Right child (source) of the assignment.
      */
-    List<Expr> right();
+    Expr right();
 
     /**
      * Set the right child (source) of the assignment.
      */
-    MaybeAssign right(List<Expr> right);
+    MaybeAssign right(Expr right);
+
+    List<Expr> alternatives();
+
+    MaybeAssign alternatives(List<Expr> alternatives);
 
     /** Get the throwsArithmeticException of the expression. */
     boolean throwsArithmeticException();

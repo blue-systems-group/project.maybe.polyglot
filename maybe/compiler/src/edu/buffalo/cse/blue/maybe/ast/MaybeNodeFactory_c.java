@@ -4,13 +4,16 @@ import polyglot.ast.*;
 import polyglot.lex.*;
 import polyglot.util.*;
 import polyglot.types.*;
+import polyglot.ext.jl7.parse.*;
+import polyglot.ext.jl7.ast.*;
+import polyglot.ext.jl7.types.*;
 
 import java.util.*;
 
 /**
  * NodeFactory for maybe extension.
  */
-public class MaybeNodeFactory_c extends NodeFactory_c implements MaybeNodeFactory {
+public class MaybeNodeFactory_c extends JL7NodeFactory_c implements MaybeNodeFactory {
     public MaybeNodeFactory_c(MaybeLang lang, MaybeExtFactory extFactory) {
         super(lang, extFactory);
     }

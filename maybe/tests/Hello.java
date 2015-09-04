@@ -1,4 +1,5 @@
 public class Hello {
+    // TODO: no code for initialize variables
     private int i = maybe("i") {1, 2, 3};
     private Hello self = maybe("self") {new Hello()};
 
@@ -9,21 +10,30 @@ public class Hello {
     public static void maybeVariable() {
         // DONE: can indentify below.
         // DONE: implement this.
-        int b = maybe("b") {10, 2, 3}, c = maybe("c") {3, 2, 1}, d = maybe("d") {4, 5, 6}, e = 2;
-        // TODO: pass init checker
-        System.out.println(b);
+        // int b = maybe("b") {10, 2, 3}, c = maybe("c") {3, 2, 1}, d = maybe("d") {4, 5, 6}, e = 2;
+        // int b = maybe ("b") {1, 2, 3};
+        // // TODO: pass init checker
+        // System.out.println(b);
 
         // DONE: implement mechanism
         // DONE: fix bug, maybe expression can't be visitChild
         int a = 1;
         String label = "a";
+        // DONE: fix edu.buffalo.cse.blue.maybe.ast.MaybeLocalAssign_c cannot be cast to polyglot.ast.Assign
         a = maybe(label) {1, 2, 3};
         a = maybe(getLabel(label)) {1, 2, 3};
         a = maybe(label + label) {1, 2, 3};
         a = maybe(label + "a") {1, 2, 3};
+        // DONE: syntax error prompt
+        // a = maybe(label) {};
         System.out.println(a);
+        String str = "";
+        str = maybe("str") {"1", "2"};
 
         a = maybe("a") {1, 2, 3};
+        // DONE: fix edu.buffalo.cse.blue.maybe.ast.MaybeLocalAssign_c cannot be cast to polyglot.ast.Assign
+        // DONE: The += operator must have numeric operands.
+        // DONE: use real typeCheck in MaybeAssignExt
         a *= maybe("a") {1, 2, 3};
         a /= maybe("a") {1, 2, 3};
         a %= maybe("a") {1, 2, 3};
@@ -43,7 +53,7 @@ public class Hello {
         // TODO: syntax error
         // array = maybe("array") {{1}, {2}, {3}};
         // TODO: error below
-        // array[0] = maybe("array") {1, 2, 3};
+        array[0] = maybe("array") {1, 2, 3};
     }
 
     public static void main(String[] args) {

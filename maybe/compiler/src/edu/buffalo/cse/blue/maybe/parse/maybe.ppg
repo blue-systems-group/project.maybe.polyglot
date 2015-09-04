@@ -1,7 +1,7 @@
 // Assumes polyglot.jar is in classpath
-include "polyglot/parse/java12.cup"
+// include "polyglot/parse/java12.cup"
 // TODO: change to java7 support
-// include "polyglot/ext/jl5/parse/jl5.ppg"
+include "polyglot/ext/jl7/parse/jl7.ppg"
 
 package edu.buffalo.cse.blue.maybe.parse;
 
@@ -10,8 +10,11 @@ import edu.buffalo.cse.blue.maybe.ast.*;
 import polyglot.ast.Assign.Operator;
 import polyglot.parse.Name;
 import polyglot.parse.VarDeclarator;
+import polyglot.ext.jl7.parse.*;
+import polyglot.ext.jl7.ast.*;
+import polyglot.ext.jl7.types.*;
 
-parser Grm extends polyglot.parse.Grm {:
+parser Grm extends polyglot.ext.jl7.parse.Grm  {:
     public final MaybeTypeSystem ts;
     public final MaybeNodeFactory nf;
 
@@ -45,16 +48,27 @@ parser Grm extends polyglot.parse.Grm {:
         return nf.MaybeAmbAssign(pos, left, op, maybeLabel, right);
     }
 
+    public List<LocalDecl> variableDeclarators(TypeNode a, List<VarDeclarator> b, Flags flags, List<AnnotationElem> annotations) throws Exception {
+        List<LocalDecl> l = new LinkedList<>();
+        for (VarDeclarator d : b) {
+            if (d instanceof MaybeVarDeclarator) {
+                MaybeVarDeclarator m = (MaybeVarDeclarator) d;
+                l.add(nf.MaybeLocalDecl(pos(m), flags, array(a, m.dims), m.name, m.label, m.alternatives));
+            } else {
+                l.add(nf.LocalDecl(pos(d), flags, annotations, array(a, d.dims), d.name, d.init));
+            }
+        }
+        return l;
+    }
+
     public List<LocalDecl> variableDeclarators(TypeNode a, List<VarDeclarator> b, Flags flags) throws Exception {
         List<LocalDecl> l = new LinkedList<>();
         for (VarDeclarator d : b) {
             if (d instanceof MaybeVarDeclarator) {
-                System.out.println("MaybeVarDeclarator");
                 MaybeVarDeclarator m = (MaybeVarDeclarator) d;
                 l.add(nf.MaybeLocalDecl(pos(m), flags, array(a, m.dims), m.name, m.label, m.alternatives));
             } else {
-                l.add(nf.LocalDecl(pos(d), flags, array(a, d.dims),
-                d.name, d.init));
+                l.add(nf.LocalDecl(pos(d), flags, array(a, d.dims), d.name, d.init));
             }
         }
         return l;
@@ -115,6 +129,28 @@ extend assignment ::=
         :}
     ;
 
+// TODO: add MaybeFiledDecl to handle field maybe variable
+override field_declaration ::=
+    modifiers_or_annotations_opt:a type:b variable_declarators:c SEMICOLON:e
+    {: List<ClassMember> l = new LinkedList<>();
+       for (VarDeclarator d : c) {
+         l.add(parser.nf.FieldDecl(parser.pos(b, e),
+               a.flags(), a.annotations(), parser.array(b, d.dims),
+               d.name, d.init, parser.javadoc(a.position(), parser.pos(b))));
+        }
+        RESULT = l; :}
+    ;
+
+override local_variable_declaration ::=
+                    // List<LocalDecl>
+    modifiers_or_annotations:a type:b variable_declarators:c
+            {:
+                RESULT = parser.variableDeclarators(b, c, a.flags(), a.annotations()); :}
+    |
+    type:a variable_declarators:b//**
+            {:
+                RESULT = parser.variableDeclarators(a, b, Flags.NONE); :}
+	;
 // maybe_variable ::=
 //     MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
 //     {:
@@ -220,51 +256,3 @@ maybe_clauses ::=
         {: RESULT = a;
            a.add(b); :}
     ;
-
-// switch_statement ::=
-//     SWITCH:n LPAREN expression:a RPAREN:rprn switch_block:b {:
-//
-//                Position endpos = parser.pos(n, b);
-//                if (endpos == null) endpos = parser.pos(n, rprn);
-//                RESULT = parser.nf.Switch(endpos, a, b);
-//
-//                                                             :};
-//
-// switch_block ::=
-//     LBRACE switch_block_statement_groups:a switch_labels:b RBRACE {:
-//                                                                   RESULT = a;
-//                a.addAll(b);
-//                                                                   :}
-//  |  LBRACE switch_block_statement_groups:a RBRACE {:  RESULT = a;  :}
-//  |  LBRACE switch_labels:a RBRACE {:  RESULT = a;  :}
-//  |  LBRACE RBRACE {:  RESULT = new LinkedList<>();  :};
-//
-// switch_block_statement_groups ::=
-//     switch_block_statement_group:a {:  RESULT = a;  :}
-//  |  switch_block_statement_groups:a switch_block_statement_group:b {:
-//                                                                    RESULT = a;
-//                a.addAll(b);
-//                                                                    :};
-//
-// switch_block_statement_group ::=
-//     switch_labels:a block_statements:b {:
-//                                        List<SwitchElement> l = new LinkedList<>();
-//                l.addAll(a);
-//                l.add(parser.nf.SwitchBlock(parser.pos(a, b), b));
-//                RESULT = l;
-//                                        :};
-//
-// switch_labels ::=
-//     switch_label:a {:
-//                    List<SwitchElement> l = new LinkedList<>();
-//                l.add(a);
-//                RESULT = l;
-//                    :}
-//  |  switch_labels:a switch_label:b {:  RESULT = a;
-//                a.add(b);  :};
-//
-// switch_label ::=
-//     CASE:n constant_expression:a COLON:d {:
-//                                          RESULT = parser.nf.Case(parser.pos(n, d), a);
-//                                          :}
-//  |  DEFAULT:n COLON:d {:  RESULT = parser.nf.Default(parser.pos(n, d));  :};
