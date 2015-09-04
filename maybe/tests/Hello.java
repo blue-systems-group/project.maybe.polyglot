@@ -11,6 +11,7 @@ public class Hello {
         // DONE: can indentify below.
         // DONE: implement this.
         // int b = maybe("b") {10, 2, 3}, c = maybe("c") {3, 2, 1}, d = maybe("d") {4, 5, 6}, e = 2;
+        // TODO: edu.buffalo.cse.blue.maybe.ast.MaybeLocalDecl_c cannot be cast to polyglot.ast.Expr
         // int b = maybe ("b") {1, 2, 3};
         // // TODO: pass init checker
         // System.out.println(b);
