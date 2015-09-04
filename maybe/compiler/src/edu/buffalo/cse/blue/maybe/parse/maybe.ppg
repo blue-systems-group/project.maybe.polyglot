@@ -116,6 +116,19 @@ extend assignment ::=
         :}
     ;
 
+// TODO: add MaybeFiledDecl to handle field maybe variable
+override field_declaration ::=
+    modifiers_or_annotations_opt:a type:b variable_declarators:c SEMICOLON:e
+    {: List<ClassMember> l = new LinkedList<>();
+       for (VarDeclarator d : c) {
+           System.out.println(d);
+         l.add(parser.nf.FieldDecl(parser.pos(b, e),
+               a.flags(), a.annotations(), parser.array(b, d.dims),
+               d.name, d.init, parser.javadoc(a.position(), parser.pos(b))));
+        }
+        RESULT = l; :}
+    ;
+
 // maybe_variable ::=
 //     MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
 //     {:
