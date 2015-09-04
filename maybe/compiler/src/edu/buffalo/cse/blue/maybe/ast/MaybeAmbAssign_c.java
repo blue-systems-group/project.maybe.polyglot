@@ -18,12 +18,12 @@ public class MaybeAmbAssign_c extends MaybeAssign_c implements MaybeAmbAssign {
     private static final long serialVersionUID = SerialVersionUID.generate();
 
 //    @Deprecated
-    public MaybeAmbAssign_c(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> right) {
-        this(pos, left, op, maybeLabel, right, null);
+    public MaybeAmbAssign_c(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> alternatives) {
+        this(pos, left, op, maybeLabel, alternatives, null);
     }
 
-    public MaybeAmbAssign_c(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> right, Ext ext) {
-        super(pos, left, op, maybeLabel, right, ext);
+    public MaybeAmbAssign_c(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> alternatives, Ext ext) {
+        super(pos, left, op, maybeLabel, alternatives, ext);
     }
 
     @Override
@@ -32,19 +32,19 @@ public class MaybeAmbAssign_c extends MaybeAssign_c implements MaybeAmbAssign {
             return left();
         }
 
-        return right().get(0);
+        return alternatives().get(0);
     }
 
     @Override
     protected void acceptCFGAssign(CFGBuilder<?> v) {
-        for (Expr e : right()) {
+        for (Expr e : alternatives()) {
             v.visitCFG(e, this, EXIT);
         }
     }
 
     @Override
     protected void acceptCFGOpAssign(CFGBuilder<?> v) {
-        for (Expr e : right()) {
+        for (Expr e : alternatives()) {
             v.visitCFG(left(), e, ENTRY);
             v.visitCFG(e, this, EXIT);
         }
@@ -59,21 +59,21 @@ public class MaybeAmbAssign_c extends MaybeAssign_c implements MaybeAmbAssign {
                                                 (Local) left(),
                                                 operator(),
                                                 label(),
-                                                right());
+                                                alternatives());
         }
         else if (n.left() instanceof Field) {
             return ((MaybeNodeFactory) ar.nodeFactory()).MaybeFieldAssign(n.position(),
                                                 (Field) left(),
                                                 operator(),
                                                 label(),
-                                                right());
+                                                alternatives());
         }
         else if (n.left() instanceof ArrayAccess) {
             return ((MaybeNodeFactory) ar.nodeFactory()).MaybeArrayAccessAssign(n.position(),
                                                       (ArrayAccess) left(),
                                                       operator(),
                                                       label(),
-                                                      right());
+                                                      alternatives());
         }
 
         // LHS is still ambiguous.  The pass should get rerun later.
@@ -89,6 +89,6 @@ public class MaybeAmbAssign_c extends MaybeAssign_c implements MaybeAmbAssign {
 
     @Override
     public Node copy(NodeFactory nf) {
-        return ((MaybeNodeFactory) nf).MaybeAmbAssign(this.position, this.left, this.op, this.maybeLabel, this.right);
+        return ((MaybeNodeFactory) nf).MaybeAmbAssign(this.position, this.left, this.op, this.maybeLabel, this.alternatives);
     }
 }

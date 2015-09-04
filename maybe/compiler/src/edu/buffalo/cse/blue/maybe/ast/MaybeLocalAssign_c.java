@@ -20,13 +20,13 @@ public class MaybeLocalAssign_c extends MaybeAssign_c implements MaybeLocalAssig
     private static final long serialVersionUID = SerialVersionUID.generate();
 
 //    @Deprecated
-    public MaybeLocalAssign_c(Position pos, Local left, Operator op, Expr maybeLabel, List<Expr> right) {
-        this(pos, left, op, maybeLabel, right, null);
+    public MaybeLocalAssign_c(Position pos, Local left, Operator op, Expr maybeLabel, List<Expr> alternatives) {
+        this(pos, left, op, maybeLabel, alternatives, null);
     }
 
-    public MaybeLocalAssign_c(Position pos, Local left, Operator op, Expr maybeLabel, List<Expr> right,
+    public MaybeLocalAssign_c(Position pos, Local left, Operator op, Expr maybeLabel, List<Expr> alternatives,
             Ext ext) {
-        super(pos, left, op, maybeLabel, right, ext);
+        super(pos, left, op, maybeLabel, alternatives, ext);
     }
 
     @Override
@@ -52,14 +52,14 @@ public class MaybeLocalAssign_c extends MaybeAssign_c implements MaybeLocalAssig
             return left();
         }
 
-        return right().get(0);
+        return alternatives().get(0);
     }
 
     @Override
     protected void acceptCFGAssign(CFGBuilder<?> v) {
         // do not visit left()
         // l = e: visit e -> (l = e)
-        for (Expr expr : right()) {
+        for (Expr expr : alternatives()) {
             v.visitCFG(expr, this, EXIT);
         }
     }
@@ -71,11 +71,11 @@ public class MaybeLocalAssign_c extends MaybeAssign_c implements MaybeLocalAssig
 
         // l OP= e: visit l -> e -> (l OP= e)
         v.visitThrow(l);
-        v.edge(l, right().entry());
-        v.visitCFG(right(), this);
+        v.edge(l, alternatives().entry());
+        v.visitCFG(alternatives(), this);
         */
 
-        for (Expr expr : right()) {
+        for (Expr expr : alternatives()) {
             v.visitCFG(left(), expr, ENTRY);
             v.visitCFG(expr, this, EXIT);
         }
