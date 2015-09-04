@@ -61,6 +61,19 @@ parser Grm extends polyglot.ext.jl7.parse.Grm  {:
         return l;
     }
 
+    public List<LocalDecl> variableDeclarators(TypeNode a, List<VarDeclarator> b, Flags flags) throws Exception {
+        List<LocalDecl> l = new LinkedList<>();
+        for (VarDeclarator d : b) {
+            if (d instanceof MaybeVarDeclarator) {
+                MaybeVarDeclarator m = (MaybeVarDeclarator) d;
+                l.add(nf.MaybeLocalDecl(pos(m), flags, array(a, m.dims), m.name, m.label, m.alternatives));
+            } else {
+                l.add(nf.LocalDecl(pos(d), flags, array(a, d.dims), d.name, d.init));
+            }
+        }
+        return l;
+    }
+
     public MaybeLocalDecl MaybeLocalDecl(Position pos, Flags flags, TypeNode type, Id name, Expr label, List<Expr> alternatives) {
         return nf.MaybeLocalDecl(pos, flags, type, name, label, alternatives);
     }
@@ -121,7 +134,6 @@ override field_declaration ::=
     modifiers_or_annotations_opt:a type:b variable_declarators:c SEMICOLON:e
     {: List<ClassMember> l = new LinkedList<>();
        for (VarDeclarator d : c) {
-           System.out.println(d);
          l.add(parser.nf.FieldDecl(parser.pos(b, e),
                a.flags(), a.annotations(), parser.array(b, d.dims),
                d.name, d.init, parser.javadoc(a.position(), parser.pos(b))));
@@ -129,6 +141,16 @@ override field_declaration ::=
         RESULT = l; :}
     ;
 
+override local_variable_declaration ::=
+                    // List<LocalDecl>
+    modifiers_or_annotations:a type:b variable_declarators:c
+            {:
+                RESULT = parser.variableDeclarators(b, c, a.flags(), a.annotations()); :}
+    |
+    type:a variable_declarators:b//**
+            {:
+                RESULT = parser.variableDeclarators(a, b, Flags.NONE); :}
+	;
 // maybe_variable ::=
 //     MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
 //     {:

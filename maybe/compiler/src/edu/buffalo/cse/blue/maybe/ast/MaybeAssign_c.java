@@ -27,20 +27,20 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     protected Expr left;
     protected Operator op;
     protected Expr maybeLabel;
-    protected List<Expr> right;
+    protected List<Expr> alternatives;
 
     // @Deprecated
-    public MaybeAssign_c(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> right) {
-        this(pos, left, op, maybeLabel, right, null);
+    public MaybeAssign_c(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> alternatives) {
+        this(pos, left, op, maybeLabel, alternatives, null);
     }
 
-    public MaybeAssign_c(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> right, Ext ext) {
+    public MaybeAssign_c(Position pos, Expr left, Operator op, Expr maybeLabel, List<Expr> alternatives, Ext ext) {
         super(pos, ext);
-        assert (left != null && op != null && right != null);
+        assert (left != null && op != null && alternatives != null);
         this.maybeLabel = maybeLabel;
         this.left = left;
         this.op = op;
-        this.right = right;
+        this.alternatives = alternatives;
     }
 
     @Override
@@ -112,24 +112,43 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     }
 
     @Override
-    public List<Expr> right() {
-        return this.right;
+    public Expr right() {
+        return this.alternatives.get(0);
     }
 
     @Override
-    public MaybeAssign right(List<Expr> right) {
+    public MaybeAssign right(Expr right) {
         return right(this, right);
     }
 
-    protected <N extends MaybeAssign_c> N right(N n, List<Expr> right) {
-        // System.out.println("right");
-        if (equals(n.right, right)) {
-            // System.out.println("don't copy right");
+    protected <N extends MaybeAssign_c> N right(N n, Expr right) {
+        // if (n.right == right) {
+        //     return n;
+        // }
+        // n = copyIfNeeded(n);
+        // n.right = right;
+        return n;
+    }
+
+    @Override
+    public List<Expr> alternatives() {
+        return this.alternatives;
+    }
+
+    @Override
+    public MaybeAssign alternatives(List<Expr> alternatives) {
+        return alternatives(this, alternatives);
+    }
+
+    protected <N extends MaybeAssign_c> N alternatives(N n, List<Expr> alternatives) {
+        // System.out.println("alternatives");
+        if (equals(n.alternatives, alternatives)) {
+            // System.out.println("don't copy alternatives");
             return n;
         }
-        // System.out.println("CCOOPPYY right");
+        // System.out.println("CCOOPPYY alternatives");
         n = copyIfNeeded(n);
-        n.right = right;
+        n.alternatives = alternatives;
         return n;
     }
 
@@ -149,11 +168,11 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
     }
 
     /** Reconstruct the expression. */
-    protected <N extends MaybeAssign_c> N reconstruct(N n, Expr left, Expr maybeLabel, List<Expr> right) {
+    protected <N extends MaybeAssign_c> N reconstruct(N n, Expr left, Expr maybeLabel, List<Expr> alternatives) {
         // System.out.println("reconstruct");
         n = left(n, left);
         n = label(n, maybeLabel);
-        n = right(n, right);
+        n = alternatives(n, alternatives);
         return n;
     }
 
@@ -164,8 +183,8 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         Expr label = this.maybeLabel;
         // TODO: need fix infinite loop below
         // Expr label = visitChild(this.maybeLabel, v);
-        List<Expr> right = visitList(this.right, v);
-        return reconstruct(this, left, label, right);
+        List<Expr> alternatives = visitList(this.alternatives, v);
+        return reconstruct(this, left, label, alternatives);
     }
 
     public Node typeCheck(TypeChecker tc, TypeSystem ts, Type t, Expr e) throws SemanticException {
@@ -273,7 +292,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         // }
 
         Node n = null;
-        for (Expr e : right) {
+        for (Expr e : alternatives) {
             n = this.typeCheck(tc, ts, t, e);
         }
         return n;
@@ -299,7 +318,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         if (op == Assign.ADD_ASSIGN || op == Assign.SUB_ASSIGN || op == Assign.MUL_ASSIGN
                 || op == Assign.DIV_ASSIGN || op == Assign.MOD_ASSIGN || op == Assign.SHL_ASSIGN
                 || op == Assign.SHR_ASSIGN || op == Assign.USHR_ASSIGN) {
-            // if (left.type().isNumeric() && right.type().isNumeric()) {
+            // if (left.type().isNumeric() && alternatives.type().isNumeric()) {
             if (left.type().isNumeric()) {
                 try {
                     return ts.promote(left.type(), child.type());
@@ -316,7 +335,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
                 return ts.Boolean();
             }
             if (left.type().isNumeric()) {
-            // if (left.type().isNumeric() && right.type().isNumeric()) {
+            // if (left.type().isNumeric() && alternatives.type().isNumeric()) {
                 try {
                     return ts.promote(left.type(), child.type());
                 }
@@ -343,7 +362,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public String toString() {
-        return left + " " + op + " " + right;
+        return left + " " + op + " " + alternatives;
     }
 
     @Override
@@ -353,7 +372,7 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         // w.write(op.toString());
         // w.allowBreak(2, 2, " ", 1); // miser mode
         // w.begin(0);
-        // printSubExpr(right, false, w, tr);
+        // printSubExpr(alternatives, false, w, tr);
         // w.end();
 
         w.begin(0);
@@ -371,8 +390,8 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         // w.unifiedBreak(0);
         // w.write("break;");
         boolean first = true;
-        if (right != null) {
-            for (Expr e : right) {
+        if (alternatives != null) {
+            for (Expr e : alternatives) {
                 if (first) {
                     first = false;
                 } else {
@@ -452,6 +471,6 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
 
     @Override
     public Node copy(NodeFactory nf) {
-        return ((MaybeNodeFactory) nf).MaybeAssign(this.position, this.left, this.op, this.maybeLabel, this.right);
+        return ((MaybeNodeFactory) nf).MaybeAssign(this.position, this.left, this.op, this.maybeLabel, this.alternatives);
     }
 }
