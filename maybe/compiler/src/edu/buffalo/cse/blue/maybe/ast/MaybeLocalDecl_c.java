@@ -287,6 +287,26 @@ public class MaybeLocalDecl_c extends Stmt_c implements MaybeLocalDecl {
         return super.typeCheckEnter(tc);
     }
 
+    public void typeCheck(TypeChecker tc, TypeSystem ts, Expr e) throws SemanticException {
+        if (e instanceof ArrayInit) {
+            ((ArrayInit) e).typeCheckElements(tc, type.type());
+        } else {
+            if (!ts.isImplicitCastValid(e.type(), type.type())
+            && !ts.typeEquals(e.type(), type.type())
+            && !ts.numericConversionValid(type.type(),
+            tc.lang()
+            .constantValue(e, tc.lang()))) {
+                throw new SemanticException("The type of the variable "
+                + "initializer \""
+                + e.type()
+                + "\" does not match that of "
+                + "the declaration \""
+                + type.type() + "\".",
+                e.position());
+            }
+        }
+    }
+
     @Override
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
@@ -302,27 +322,9 @@ public class MaybeLocalDecl_c extends Stmt_c implements MaybeLocalDecl {
 
         // TODO: rewrite below
         // TODO: implement typeCheck
-        // if (init != null) {
-        //     if (init instanceof ArrayInit) {
-        //         ((ArrayInit) init).typeCheckElements(tc, type.type());
-        //     }
-        //     else {
-        //         if (!ts.isImplicitCastValid(init.type(), type.type())
-        //                 && !ts.typeEquals(init.type(), type.type())
-        //                 && !ts.numericConversionValid(type.type(),
-        //                                               tc.lang()
-        //                                                 .constantValue(init,
-        //                                                                tc.lang()))) {
-        //             throw new SemanticException("The type of the variable "
-        //                                                 + "initializer \""
-        //                                                 + init.type()
-        //                                                 + "\" does not match that of "
-        //                                                 + "the declaration \""
-        //                                                 + type.type() + "\".",
-        //                                         init.position());
-        //         }
-        //     }
-        // }
+        for (Expr e : alternatives) {
+            this.typeCheck(tc, ts, e);
+        }
 
         return localInstance(li);
     }
