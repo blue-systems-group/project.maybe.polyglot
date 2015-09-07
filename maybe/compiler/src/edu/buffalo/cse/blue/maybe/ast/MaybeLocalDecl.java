@@ -19,7 +19,7 @@ public interface MaybeLocalDecl extends LocalDecl {
     /**
      * Set the type object for the local declaration.
      */
-    LocalDecl localInstance(LocalInstance li);
+    MaybeLocalDecl localInstance(LocalInstance li);
 
     /** Set the declaration's flags. */
     MaybeLocalDecl flags(Flags flags);

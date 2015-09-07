@@ -7,6 +7,7 @@ import polyglot.types.*;
 import polyglot.ext.jl7.parse.*;
 import polyglot.ext.jl7.ast.*;
 import polyglot.ext.jl7.types.*;
+import  polyglot.ext.jl5.ast.*;
 
 import java.util.*;
 
@@ -102,8 +103,12 @@ public class MaybeNodeFactory_c extends JL7NodeFactory_c implements MaybeNodeFac
     public MaybeLocalDecl MaybeLocalDecl(Position pos, Flags flags, TypeNode type, Id name, Expr label, List<Expr> alternatives) {
         MaybeLocalDecl n = new MaybeLocalDecl_c(pos, flags, type, name, label, alternatives);
         // TODO: whould use correct ext
-        n = ext(n, extFactory().extAmbAssign());
-        n = del(n, delFactory().delAmbAssign());
+        // n = ext(n, extFactory().extLocalAssign());
+        // n = del(n, delFactory().delLocalAssign());
+        n = ext(n, extFactory().extLocalDecl());
+        n = del(n, delFactory().delLocalDecl());
+        JL5LocalDeclExt ext = (JL5LocalDeclExt) JL5Ext.ext(n);
+        ext.annotations = CollectionUtil.nonNullList(null);
         return n;
     }
 }

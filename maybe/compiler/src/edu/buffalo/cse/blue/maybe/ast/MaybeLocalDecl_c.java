@@ -301,6 +301,7 @@ public class MaybeLocalDecl_c extends Stmt_c implements MaybeLocalDecl {
         }
 
         // TODO: rewrite below
+        // TODO: implement typeCheck
         // if (init != null) {
         //     if (init instanceof ArrayInit) {
         //         ((ArrayInit) init).typeCheckElements(tc, type.type());
