@@ -29,8 +29,11 @@ import java.util.Set;
 
 %line
 %column
+%char
 
-%state STRING, CHARACTER, TRADITIONAL_COMMENT, END_OF_LINE_COMMENT
+%buffer 1048576
+
+%state STRING, CHARACTER, TRADITIONAL_COMMENT, END_OF_LINE_COMMENT, JAVADOC_COMMENT
 
 %{
     StringBuffer sb = new StringBuffer();
@@ -74,6 +77,7 @@ import java.util.Set;
         keywords.put("do",            new Integer(sym.DO));
         keywords.put("double",        new Integer(sym.DOUBLE));
         keywords.put("else",          new Integer(sym.ELSE));
+        keywords.put("enum",          new Integer(sym.ENUM));
         keywords.put("extends",       new Integer(sym.EXTENDS));
         keywords.put("final",         new Integer(sym.FINAL));
         keywords.put("finally",       new Integer(sym.FINALLY));
@@ -146,7 +150,12 @@ import java.util.Set;
         return new Identifier(pos(), yytext(), sym.IDENTIFIER);
     }
 
+    private String removeUnderscores(String s) {
+        return s.replaceAll("_", "");
+    }
+
     private Token int_lit(String s, int radix) {
+        s = removeUnderscores(s);
         BigInteger x = new BigInteger(s, radix);
         boolean boundary = (radix == 10 && s.equals("2147483648"));
         int bits = radix == 10 ? 31 : 32;
@@ -159,34 +168,36 @@ import java.util.Set;
     }
 
     private Token long_lit(String s, int radix) {
+        s = removeUnderscores(s);
         BigInteger x = new BigInteger(s, radix);
         boolean boundary = (radix == 10 && s.equals("9223372036854775808"));
         int bits = radix == 10 ? 63 : 64;
         if (x.bitLength() > bits && ! boundary) {
             eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Long literal \"" +
                         yytext() + "\" out of range.", pos());
-        }
+            }
         return new LongLiteral(pos(), x.longValue(),
                 boundary ? sym.LONG_LITERAL_BD : sym.LONG_LITERAL);
-    }
+            }
 
     private Token float_lit(String s) {
         try {
+            s = removeUnderscores(s);
             Float x = Float.valueOf(s);
-	    boolean zero = true;
-	    for (int i = 0; i < s.length(); i++) {
-		if ('1' <= s.charAt(i) && s.charAt(i) <= '9') {
-		    zero = false;
-		    break;
-		}
+            boolean zero = true;
+            for (int i = 0; i < s.length(); i++) {
+                if ('1' <= s.charAt(i) && s.charAt(i) <= '9') {
+                    zero = false;
+                    break;
+                }
                 if (s.charAt(i) == 'e' || s.charAt(i) == 'E') {
                     break; // 0e19 is still 0
                 }
-	    }
-	    if (x.isInfinite() || x.isNaN() || (x.floatValue() == 0 && ! zero)) {
-		eq.enqueue(ErrorInfo.LEXICAL_ERROR,
-			   "Illegal float literal \"" + yytext() + "\"", pos());
-	    }
+            }
+            if (x.isInfinite() || x.isNaN() || (x.floatValue() == 0 && ! zero)) {
+                eq.enqueue(ErrorInfo.LEXICAL_ERROR,
+                           "Illegal float literal \"" + yytext() + "\"", pos());
+            }
             return new FloatLiteral(pos(), x.floatValue(), sym.FLOAT_LITERAL);
         }
         catch (NumberFormatException e) {
@@ -198,21 +209,22 @@ import java.util.Set;
 
     private Token double_lit(String s) {
         try {
+            s = removeUnderscores(s);
             Double x = Double.valueOf(s);
-	    boolean zero = true;
-	    for (int i = 0; i < s.length(); i++) {
-		if ('1' <= s.charAt(i) && s.charAt(i) <= '9') {
-		    zero = false;
-		    break;
-		}
+            boolean zero = true;
+            for (int i = 0; i < s.length(); i++) {
+                if ('1' <= s.charAt(i) && s.charAt(i) <= '9') {
+                    zero = false;
+                    break;
+                }
                 if (s.charAt(i) == 'e' || s.charAt(i) == 'E') {
                     break; // 0e19 is still 0
                 }
-	    }
-	    if (x.isInfinite() || x.isNaN() || (x.doubleValue() == 0 && ! zero)) {
-		eq.enqueue(ErrorInfo.LEXICAL_ERROR,
-			   "Illegal double literal \"" + yytext() + "\"", pos());
-	    }
+            }
+            if (x.isInfinite() || x.isNaN() || (x.doubleValue() == 0 && ! zero)) {
+                eq.enqueue(ErrorInfo.LEXICAL_ERROR,
+                           "Illegal double literal \"" + yytext() + "\"", pos());
+            }
             return new DoubleLiteral(pos(), x.doubleValue(), sym.DOUBLE_LITERAL);
         }
         catch (NumberFormatException e) {
@@ -245,6 +257,10 @@ import java.util.Set;
     private Token string_lit() {
         return new StringLiteral(pos(sb.length()), sb.toString(),
                                  sym.STRING_LITERAL);
+    }
+
+    private Token javadoc_token() {
+		return new JavadocToken(pos(sb.length()), sb.toString(), sym.JAVADOC);
     }
 
     private String chop(int i, int j) {
@@ -288,17 +304,48 @@ WhiteSpace = [ \t\f] | {LineTerminator}
 Identifier = [:jletter:] [:jletterdigit:]*
 
 /* 3.10.1 Integer Literals */
-DecimalNumeral = 0 | [1-9][0-9]*
-HexNumeral = 0 [xX] [0-9a-fA-F]+
-OctalNumeral = 0 [0-7]+
+DecimalNumeral = 0 | [1-9] {Digits}? | [1-9] [_]+ {Digits}
+Digits = {Digit} | {Digit} {DigitAndUnderscore}* {Digit}
+Digit = [0-9]
+DigitAndUnderscore = {Digit} | "_"
+
+HexNumeral = 0 [xX] {HexDigits}
+HexDigits = {HexDigit} | {HexDigit} {HexDigitAndUnderscore}* {HexDigit}
+HexDigit = [0-9a-fA-F]
+HexDigitAndUnderscore = {HexDigit} | "_"
+
+OctalNumeral = 0 [_]* {OctalDigits}
+OctalDigits = {OctalDigit} | {OctalDigit} {OctalDigitAndUnderscore}* {OctalDigit}
+OctalDigit = [0-7]
+OctalDigitAndUnderscore = {OctalDigit} | "_"
+
+
+BinaryNumeral = 0 [bB] {BinaryDigits}
+BinaryDigits = {BinaryDigit} | {BinaryDigit} {BinaryDigitAndUnderscore}* {BinaryDigit}
+BinaryDigit = [01]
+BinaryDigitAndUnderscore = {BinaryDigit} | "_"
+
 
 /* 3.10.2 Floating-Point Literals */
-FloatingPointLiteral = [0-9]+ "." [0-9]* {ExponentPart}?
-                     | "." [0-9]+ {ExponentPart}?
-                     | [0-9]+ {ExponentPart}
+FloatingPointLiteral = {DecimalFloatingPointLiteral} | {HexadecimalFloatingPointLiteral}
+
+DecimalFloatingPointLiteral = {Digits} "." {Digits}? {ExponentPart}? {FloatTypeSuffix}?
+                     | "." {Digits} {ExponentPart}? {FloatTypeSuffix}?
+                     | {Digits} {ExponentPart} {FloatTypeSuffix}?
+                     | {Digits} {ExponentPart}? {FloatTypeSuffix}
 
 ExponentPart = [eE] {SignedInteger}
-SignedInteger = [-+]? [0-9]+
+SignedInteger = [-+]? {Digits}
+
+HexadecimalFloatingPointLiteral = {HexSignificand} {BinaryExponent} {FloatTypeSuffix}?
+
+HexSignificand = {HexNumeral}
+               | {HexNumeral} "."
+               | 0 [xX] {HexDigits}? "." {HexDigits}
+
+BinaryExponent = [pP] {SignedInteger}
+FloatTypeSuffix = [fFdD]
+
 
 /* 3.10.4 Character Literals */
 OctalEscape = \\ [0-7]
@@ -312,6 +359,10 @@ OctalEscape = \\ [0-7]
     "/*"    { yybegin(TRADITIONAL_COMMENT);
               commentBegin = pos(); }
     "//"    { yybegin(END_OF_LINE_COMMENT); }
+    "/**"	{ yybegin(JAVADOC_COMMENT);
+		 	  sb.setLength(0);
+		  	  sb.append(yytext());
+		  	  commentBegin = pos(); }
 
     /* 3.10.4 Character Literals */
     \'      { yybegin(CHARACTER); sb.setLength(0); }
@@ -381,13 +432,17 @@ OctalEscape = \\ [0-7]
     "<<="  { return op(sym.LSHIFTEQ);   }
     ">>="  { return op(sym.RSHIFTEQ);   }
     ">>>=" { return op(sym.URSHIFTEQ);  }
+    "@"    { return op(sym.AT);         }
+    "..."    { return op(sym.ELLIPSIS);         }
 
     /* 3.10.1 Integer Literals */
     {OctalNumeral} [lL]          { return long_lit(chop(), 8); }
     {HexNumeral} [lL]            { return long_lit(chop(2,1), 16); }
+    {BinaryNumeral} [lL]        { return long_lit(chop(2,1), 2); }
     {DecimalNumeral} [lL]        { return long_lit(chop(), 10); }
     {OctalNumeral}               { return int_lit(yytext(), 8); }
     {HexNumeral}                 { return int_lit(chop(2,0), 16); }
+    {BinaryNumeral}              { return int_lit(chop(2,0), 2); }
     {DecimalNumeral}             { return int_lit(yytext(), 10); }
 
     /* 3.10.2 Floating-Point Literals */
@@ -413,6 +468,18 @@ OctalEscape = \\ [0-7]
 <END_OF_LINE_COMMENT> {
     {LineTerminator}             { yybegin(YYINITIAL); }
     .                            { /* ignore */ }
+}
+
+<JAVADOC_COMMENT> {
+    "*/"                         { yybegin(YYINITIAL);
+    							   sb.append(yytext());
+    							   return javadoc_token(); }
+
+    <<EOF>>                      { yybegin(YYINITIAL);
+                                   eq.enqueue(ErrorInfo.LEXICAL_ERROR,
+                                                  "Unclosed Javadoc comment",
+                                                  commentBegin); }
+    [^]                          { sb.append(yytext()); }
 }
 
 <CHARACTER> {
