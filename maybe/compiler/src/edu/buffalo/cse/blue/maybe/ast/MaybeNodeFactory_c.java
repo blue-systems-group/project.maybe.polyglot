@@ -108,7 +108,6 @@ public class MaybeNodeFactory_c extends JL7NodeFactory_c implements MaybeNodeFac
         n = ext(n, extFactory().extLocalDecl());
         n = del(n, delFactory().delLocalDecl());
         JL5LocalDeclExt ext = (JL5LocalDeclExt) JL5Ext.ext(n);
-        ext.annotations = CollectionUtil.nonNullList(null);
-        return n;
+        return (MaybeLocalDecl) ext.annotationElems(new LinkedList<AnnotationElem>());
     }
 }
