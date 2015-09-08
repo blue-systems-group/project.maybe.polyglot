@@ -47,7 +47,7 @@ public abstract class JL5AnnotatedElementExt extends JL5TermExt implements
         AnnotatedElement {
     private static final long serialVersionUID = SerialVersionUID.generate();
 
-    public List<AnnotationElem> annotations;
+    protected List<AnnotationElem> annotations;
 
     public JL5AnnotatedElementExt(List<AnnotationElem> annotations) {
         this.annotations = ListUtil.copy(annotations, true);
