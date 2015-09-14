@@ -1,15 +1,14 @@
 package edu.buffalo.cse.blue.maybe.ast;
 
+import edu.buffalo.cse.blue.maybe.metadata.Metadata;
 import polyglot.ast.*;
-import polyglot.lex.*;
 import polyglot.util.*;
 import polyglot.types.*;
-import polyglot.ext.jl7.parse.*;
 import polyglot.ext.jl7.ast.*;
-import polyglot.ext.jl7.types.*;
-import  polyglot.ext.jl5.ast.*;
+import polyglot.ext.jl5.ast.*;
 
 import java.util.*;
+
 
 /**
  * NodeFactory for maybe extension.
@@ -18,6 +17,20 @@ public class MaybeNodeFactory_c extends JL7NodeFactory_c implements MaybeNodeFac
     public MaybeNodeFactory_c(MaybeLang lang, MaybeExtFactory extFactory) {
         super(lang, extFactory);
     }
+
+    private List<Position> getPositionList(List list) {
+        List<Position> positionList = new LinkedList<Position>();
+        for (Object object : list) {
+            if (object instanceof Node) {
+                Node node = (Node) object;
+                positionList.add(node.position());
+            } else {
+                System.err.println(object + " is not a Node!");
+            }
+        }
+        return positionList;
+    }
+
 
     @Override
     public MaybeExtFactory extFactory() {
@@ -29,6 +42,7 @@ public class MaybeNodeFactory_c extends JL7NodeFactory_c implements MaybeNodeFac
     // TODO:  Override factory methods for AST nodes with new extension nodes.
     @Override
     public Maybe Maybe(Position pos, Expr cond, List<Block> alternatives) {
+        Metadata.INSTANCE.addMaybeBlock(pos, cond.position(), getPositionList(alternatives));
         Maybe n = new Maybe_c(pos, cond, alternatives);
         n = ext(n, extFactory().extIf());
         n = del(n, delFactory().delIf());
@@ -37,6 +51,7 @@ public class MaybeNodeFactory_c extends JL7NodeFactory_c implements MaybeNodeFac
 
     @Override
     public MaybeAssign MaybeAssign(Position pos, Expr left, Assign.Operator op, Expr maybeLabel, List<Expr> right) {
+        Metadata.INSTANCE.addMaybeVariable(pos, maybeLabel.position(), getPositionList(right));
         if (left instanceof Local) {
             return MaybeLocalAssign(pos, (Local) left, op, maybeLabel, right);
         }
@@ -101,6 +116,7 @@ public class MaybeNodeFactory_c extends JL7NodeFactory_c implements MaybeNodeFac
 
     @Override
     public MaybeLocalDecl MaybeLocalDecl(Position pos, Flags flags, TypeNode type, Id name, Expr label, List<Expr> alternatives) {
+        Metadata.INSTANCE.addMaybeVariable(pos, label.position(), getPositionList(alternatives));
         MaybeLocalDecl n = new MaybeLocalDecl_c(pos, flags, type, name, label, alternatives);
         // TODO: whould use correct ext
         // n = ext(n, extFactory().extLocalAssign());

@@ -95,7 +95,7 @@ public class MaybeArrayAccessAssign_c extends MaybeAssign_c implements MaybeArra
 
     @Override
     public List<Type> throwTypes(TypeSystem ts) {
-        List<Type> l = new ArrayList<>(super.throwTypes(ts));
+        List<Type> l = new ArrayList<Type>(super.throwTypes(ts));
 
         if (op == ASSIGN && left.type().isReference()) {
             l.add(ts.ArrayStoreException());

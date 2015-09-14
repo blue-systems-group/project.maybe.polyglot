@@ -1,5 +1,7 @@
 package edu.buffalo.cse.blue.maybe;
 
+import edu.buffalo.cse.blue.maybe.metadata.Metadata;
+
 /**
  * Main is the main program of the compiler extension.
  * It simply invokes Polyglot's main, passing in the extension's
@@ -12,6 +14,7 @@ public class Main
 
       try {
           polyglotMain.start(args, new edu.buffalo.cse.blue.maybe.ExtensionInfo());
+          Metadata.INSTANCE.finish();
       }
       catch (polyglot.main.Main.TerminationException e) {
           System.err.println(e.getMessage());
