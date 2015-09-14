@@ -2,4 +2,7 @@
 *.jar
 Grm.java
 *.cup
-build
+build/
+
+*.iml
+.idea/
