@@ -1,6 +1,7 @@
 package edu.buffalo.cse.blue.maybe;
 
 import edu.buffalo.cse.blue.maybe.metadata.Metadata;
+import polyglot.types.SemanticException;
 
 /**
  * Main is the main program of the compiler extension.
@@ -15,8 +16,10 @@ public class Main
       try {
           polyglotMain.start(args, new edu.buffalo.cse.blue.maybe.ExtensionInfo());
           Metadata.INSTANCE.finish();
-      }
-      catch (polyglot.main.Main.TerminationException e) {
+      } catch (polyglot.main.Main.TerminationException e) {
+          System.err.println(e.getMessage());
+          System.exit(1);
+      } catch (SemanticException e) {
           System.err.println(e.getMessage());
           System.exit(1);
       }
