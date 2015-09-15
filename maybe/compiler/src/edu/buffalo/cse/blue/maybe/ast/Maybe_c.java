@@ -81,7 +81,7 @@ public class Maybe_c extends Stmt_c implements Maybe {
         List<Block> list = new LinkedList<Block>();
         if (alternatives != null) {
             for (Block b : alternatives) {
-                 list.add(visitChild(b, v));
+                list.add(visitChild(b, v));
             }
         }
         return reconstruct(this, cond, list);
@@ -91,10 +91,14 @@ public class Maybe_c extends Stmt_c implements Maybe {
     public Node typeCheck(TypeChecker tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
 
-        // TODO: the input must be a constant String, so we can generate metadata.
+        // DONE: the input must be a constant String, so we can generate metadata.
         if (!ts.isImplicitCastValid(cond.type(), ts.String())) {
             throw new SemanticException("Maybe label must be String type.",
                                         cond.position());
+        }
+        if (!(cond instanceof StringLit_c)) {
+            throw new SemanticException("Maybe label must be String Literal.",
+                    cond.position());
         }
         // if (!ts.isImplicitCastValid(cond.type(), ts.Boolean())) {
         //     throw new SemanticException("Condition of if statement must have boolean type.",

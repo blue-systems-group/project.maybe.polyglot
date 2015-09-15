@@ -1,10 +1,7 @@
 package edu.buffalo.cse.blue.maybe.ast;
 
-import polyglot.ast.Assign;
+import polyglot.ast.*;
 import polyglot.ast.Assign.Operator;
-import polyglot.ast.Expr;
-import polyglot.ast.Node;
-import polyglot.ast.Variable;
 import polyglot.ext.jl5.types.JL5TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -80,16 +77,16 @@ public class MaybeAssignExt extends MaybeExt {
 
         if (!(left instanceof Variable)) {
             throw new SemanticException("Target of assignment must be a variable.",
-                                        a.position());
+                    a.position());
         }
 
         if (a.operator() == Assign.ASSIGN) {
             if (!ts.isImplicitCastValid(s, t)
                     && !ts.typeEquals(s, t)
                     && !ts.numericConversionValid(t,
-                                                  tc.lang()
-                                                    .constantValue(right,
-                                                                   tc.lang()))) {
+                    tc.lang()
+                            .constantValue(right,
+                                    tc.lang()))) {
 
                 throw new SemanticException("Cannot assign " + s + " to " + t
                         + ".", a.position());
@@ -110,9 +107,9 @@ public class MaybeAssignExt extends MaybeExt {
             }
 
             throw new SemanticException("The " + a.operator()
-                                                + " operator must have "
-                                                + "numeric or String operands.",
-                                        a.position());
+                    + " operator must have "
+                    + "numeric or String operands.",
+                    a.position());
         }
 
         if (a.operator() == Assign.SUB_ASSIGN
@@ -124,9 +121,9 @@ public class MaybeAssignExt extends MaybeExt {
             }
 
             throw new SemanticException("The " + a.operator()
-                                                + " operator must have "
-                                                + "numeric operands.",
-                                        a.position());
+                    + " operator must have "
+                    + "numeric operands.",
+                    a.position());
         }
 
         if (a.operator() == Assign.BIT_AND_ASSIGN
@@ -142,10 +139,10 @@ public class MaybeAssignExt extends MaybeExt {
             }
 
             throw new SemanticException("The "
-                                                + a.operator()
-                                                + " operator must have "
-                                                + "integral or boolean operands.",
-                                        a.position());
+                    + a.operator()
+                    + " operator must have "
+                    + "integral or boolean operands.",
+                    a.position());
         }
 
         if (a.operator() == Assign.SHL_ASSIGN
@@ -158,9 +155,9 @@ public class MaybeAssignExt extends MaybeExt {
             }
 
             throw new SemanticException("The " + a.operator()
-                                                + " operator must have "
-                                                + "integral operands.",
-                                        a.position());
+                    + " operator must have "
+                    + "integral operands.",
+                    a.position());
         }
 
         throw new InternalCompilerError("Unrecognized assignment operator "
@@ -172,10 +169,15 @@ public class MaybeAssignExt extends MaybeExt {
         Assign a = (Assign) this.node();
         Expr left = a.left();
         Type t = left.type();
-        // DONE: DONOT use this, use real typeCheck!
+        // DONE: DO NOT use this, use real typeCheck!
         //       by remove right element in MaybeAssign
         if (a instanceof MaybeAssign) {
             MaybeAssign maybeAssign = (MaybeAssign) this.node();
+            Expr label = maybeAssign.label();
+            if (!(label instanceof StringLit)) {
+                throw new SemanticException("Maybe label must be String Literal.",
+                        label.position());
+            }
             Node result = null;
             for (Expr right : maybeAssign.alternatives()) {
                 result = this.typeCheck(tc, maybeAssign, t, right.type(), left, right);

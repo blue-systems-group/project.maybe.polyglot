@@ -322,6 +322,10 @@ public class MaybeLocalDecl_c extends Stmt_c implements MaybeLocalDecl {
 
         // TODO: rewrite below
         // TODO: implement typeCheck
+        if (!(label instanceof StringLit)) {
+            throw new SemanticException("Maybe label must be String Literal.",
+                    label.position());
+        }
         for (Expr e : alternatives) {
             this.typeCheck(tc, ts, e);
         }
