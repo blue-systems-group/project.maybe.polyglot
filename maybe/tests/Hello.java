@@ -13,7 +13,7 @@ public class Hello {
         // DONE: implement this.
         // int b = maybe("b") {10, 2, 3}, c = maybe("c") {3, 2, 1}, d = maybe("d") {4, 5, 6}, e = 2;
         // TODO: edu.buffalo.cse.blue.maybe.ast.MaybeLocalDecl_c cannot be cast to polyglot.ast.Expr
-        int b = maybe ("b") {1, 2, 3};
+        int b = maybe ("b") {1, 2, 3}, bb = maybe("bb") {1, 2};
         // // TODO: pass init checker
         // System.out.println(b);
 
@@ -22,10 +22,10 @@ public class Hello {
         int a = 1;
         String label = "a";
         // DONE: fix edu.buffalo.cse.blue.maybe.ast.MaybeLocalAssign_c cannot be cast to polyglot.ast.Assign
-        a = maybe(label) {1, 2, 3};
-        a = maybe(getLabel(label)) {1, 2, 3};
-        a = maybe(label + label) {1, 2, 3};
-        a = maybe(label + "a") {1, 2, 3};
+        a = maybe("1") {1, 2, 3};
+        a = maybe("1") {1, 2, 3};
+        a = maybe("2") {1, 2, 3};
+        a = maybe("a") {1, 2, 3};
         // DONE: syntax error prompt
         // a = maybe(label) {};
         System.out.println(a);
@@ -62,19 +62,23 @@ public class Hello {
         maybeVariable();
 
         String label = "one alternative ";
-        maybe (label) {
+        maybe ("abcd") {
+            System.out.println(label);
+        }
+        // TODO: duplicate label check
+        maybe ("abcd") {
             System.out.println(label);
         }
 
         label = "Two alternatives ";
-        maybe (label) {
+        maybe ("2") {
             System.out.println(label + "0");
         } or {
             System.out.println(label + "1");
         }
 
         label = "Multiple alternatives ";
-        maybe (label) {
+        maybe ("3") {
             System.out.println(label + "0");
         } or {
             System.out.println(label + "1");
@@ -89,15 +93,15 @@ public class Hello {
         label = "Nested maybe statements ";
         String level = "levels ";
         int l = 0;
-        maybe (label) {
-            maybe (level) {
+        maybe ("4") {
+            maybe ("5") {
                 System.out.println(label + level + l + " 0");
             } or {
                 System.out.println(label + level + l + " 1");
             }
         } or {
             l++;
-            maybe (level) {
+            maybe ("6") {
                 System.out.println(label + level + l + " 0");
             } or {
                 System.out.println(label + level + l + " 1");
