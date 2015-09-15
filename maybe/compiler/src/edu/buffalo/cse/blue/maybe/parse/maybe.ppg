@@ -111,12 +111,13 @@ maybe_statement ::=
 ;
 
 extend variable_declarator ::=
-        variable_declarator_id:a EQ MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE
+        variable_declarator_id:a EQ MAYBE:n LPAREN expression:b RPAREN LBRACE maybe_variable_initializer:c RBRACE:d
         {:
             MaybeVarDeclarator maybeVarDeclarator = new MaybeVarDeclarator(a);
             RESULT = maybeVarDeclarator;
             maybeVarDeclarator.label = b;
             maybeVarDeclarator.alternatives = c;
+            maybeVarDeclarator.pos = parser.pos(a, d);
         :}
 ;
 
