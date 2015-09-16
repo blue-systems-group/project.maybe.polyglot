@@ -78,7 +78,7 @@ done
 # fi
 
 
-classpath="$dir/lib/polyglot.jar:$dir/lib/maybe.jar:$dir/lib/json-20141113.jar"
+classpath="$dir/lib/polyglot.jar:$dir/lib/maybe.jar:$dir/lib/json-20140107.jar"
 if [ -n "$ext" ]; then
   classpath="$classpath:$dir/lib/$ext.jar"
 fi

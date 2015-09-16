@@ -69,7 +69,10 @@ public enum Metadata {
     private String getSHA224(JSONObject jsonObject) {
         try {
             // refer from http://www.mkyong.com/java/java-sha-hashing-example/
-            MessageDigest instance = MessageDigest.getInstance("SHA-224");
+//            MessageDigest instance = MessageDigest.getInstance("SHA-224");
+            // There is no SHA-224 in Java 7
+            // TODO: try another method to get sha224
+            MessageDigest instance = MessageDigest.getInstance("SHA-256");
             byte[] bytes = instance.digest(jsonObject.toString().getBytes());
 
             StringBuilder stringBuilder = new StringBuilder();

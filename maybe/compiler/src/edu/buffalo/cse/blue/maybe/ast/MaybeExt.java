@@ -32,9 +32,11 @@ public class MaybeExt extends Ext_c {
         String labelString = label.toString();
         if (labelMap.containsKey(labelString)) {
             Expr duplicateLabel = labelMap.get(labelString);
-            throw new SemanticException("Maybe labels " + labelString
-                    + " multiply defined. " + "Previous definition at "
-                    + duplicateLabel.position() + ".", label.position());
+            if (duplicateLabel != label) {
+                throw new SemanticException("Maybe labels " + labelString
+                        + " multiply defined. " + "Previous definition at "
+                        + duplicateLabel.position() + ".", label.position());
+            }
         }
         labelMap.put(labelString, label);
     }
