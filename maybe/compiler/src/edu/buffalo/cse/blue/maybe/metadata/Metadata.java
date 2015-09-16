@@ -2,7 +2,6 @@ package edu.buffalo.cse.blue.maybe.metadata;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import polyglot.types.SemanticException;
 import polyglot.util.Position;
 
 import java.security.MessageDigest;
@@ -99,12 +98,13 @@ public enum Metadata {
 
     /**
      * Called from Main.java to indicate the compiler finish and ready to generate metadata.
+     * @param packageName the packageName in Metadata
      */
-    public void finish() {
+    public void finish(String packageName) {
         JSONObject jsonObject = new JSONObject();
 
         // TODO: get real package name
-        jsonObject.put(Constants.PACKAGE, Constants.PACKAGE);
+        jsonObject.put(Constants.PACKAGE, packageName);
 
         jsonObject.put(Constants.STATEMENTS, this.getStatementJSONArray(statementList));
 
