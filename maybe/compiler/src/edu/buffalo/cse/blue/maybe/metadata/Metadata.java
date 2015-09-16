@@ -5,6 +5,8 @@ import org.json.JSONObject;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -60,20 +62,55 @@ public enum Metadata {
     }
 
     /**
+     * private method to generate SHA224
+     * @param jsonObject the json object contains maybe metadata
+     * @return sha224 string for the jsonObject
+     */
+    private String getSHA224(JSONObject jsonObject) {
+        try {
+            // refer from http://www.mkyong.com/java/java-sha-hashing-example/
+            MessageDigest instance = MessageDigest.getInstance("SHA-224");
+            byte[] bytes = instance.digest(jsonObject.toString().getBytes());
+
+            StringBuilder stringBuilder = new StringBuilder();
+            for (byte aByte : bytes) {
+                stringBuilder.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+            }
+
+            return stringBuilder.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return "no SHA-224 algorithm found!";
+        }
+    }
+
+    /**
+     * private method to generate JSONArray for statements
+     * @param list Statement list
+     * @return JSONArray contains JSONObjects for all Statement in list
+     */
+    private JSONArray getStatementJSONArray(List<Statement> list) {
+        JSONArray jsonArray = new JSONArray();
+        for (Statement statement : list) {
+            jsonArray.put(statement.toJSON());
+        }
+        return jsonArray;
+    }
+
+    /**
      * Called from Main.java to indicate the compiler finish and ready to generate metadata.
      * @throws SemanticException for duplicated labels.
      */
     public void finish() throws SemanticException {
         JSONObject jsonObject = new JSONObject();
-        // TODO: generate real hash
-        jsonObject.put(Constants.HASH, Constants.HASH);
+
         // TODO: get real package name
         jsonObject.put(Constants.PACKAGE, Constants.PACKAGE);
-        JSONArray jsonArray = new JSONArray();
-        for (Statement statement : statementList) {
-            jsonArray.put(statement.toJSON());
-        }
-        jsonObject.put(Constants.STATEMENTS, jsonArray);
+
+        jsonObject.put(Constants.STATEMENTS, this.getStatementJSONArray(statementList));
+
+        jsonObject.put(Constants.HASH, this.getSHA224(jsonObject));
+
         // TODO: issue post and pretty to file
         System.out.println(jsonObject);
         this.clean();
