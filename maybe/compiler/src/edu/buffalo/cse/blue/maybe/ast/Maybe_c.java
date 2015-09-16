@@ -100,6 +100,8 @@ public class Maybe_c extends Stmt_c implements Maybe {
             throw new SemanticException("Maybe label must be String Literal.",
                     cond.position());
         }
+        MaybeExt ext = MaybeExt.ext(this);
+        ext.checkDuplicateLabel(cond);
         // if (!ts.isImplicitCastValid(cond.type(), ts.Boolean())) {
         //     throw new SemanticException("Condition of if statement must have boolean type.",
         //                                 cond.position());

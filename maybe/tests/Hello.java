@@ -1,8 +1,8 @@
 public class Hello {
     // TODO: no code for initialize variables
     // TODO: need to discuss whether support this style
-    private int i = maybe("i") {1, 2, 3};
-    private Hello self = maybe("self") {new Hello()};
+    private int i;
+    private Hello self;
 
     public static String getLabel(String label) {
         return "" + label;
@@ -22,9 +22,6 @@ public class Hello {
         int a = 1;
         String label = "a";
         // DONE: fix edu.buffalo.cse.blue.maybe.ast.MaybeLocalAssign_c cannot be cast to polyglot.ast.Assign
-        a = maybe("1") {1, 2, 3};
-        a = maybe("1") {1, 2, 3};
-        a = maybe("2") {1, 2, 3};
         a = maybe("a") {1, 2, 3};
         // DONE: syntax error prompt
         // a = maybe(label) {};
@@ -32,23 +29,23 @@ public class Hello {
         String str = "";
         str = maybe("str") {"1", "2"};
 
-        a = maybe("a") {1, 2, 3};
+        a = maybe("c") {1, 2, 3};
         // DONE: fix edu.buffalo.cse.blue.maybe.ast.MaybeLocalAssign_c cannot be cast to polyglot.ast.Assign
         // DONE: The += operator must have numeric operands.
         // DONE: use real typeCheck in MaybeAssignExt
-        a *= maybe("a") {1, 2, 3};
-        a /= maybe("a") {1, 2, 3};
-        a %= maybe("a") {1, 2, 3};
-        a += maybe("a") {1, 2, 3};
-        a -= maybe("a") {1, 2, 3};
+        a *= maybe("d") {1, 2, 3};
+        a /= maybe("e") {1, 2, 3};
+        a %= maybe("f") {1, 2, 3};
+        a += maybe("g") {1, 2, 3};
+        a -= maybe("h") {1, 2, 3};
 
-        a <<= maybe("a") {1, 2, 3};
-        a >>= maybe("a") {1, 2, 3};
-        a >>>= maybe("a") {1, 2, 3};
+        a <<= maybe("i") {1, 2, 3};
+        a >>= maybe("j") {1, 2, 3};
+        a >>>= maybe("k") {1, 2, 3};
 
-        a &= maybe("a") {1, 2, 3};
-        a ^= maybe("a") {1, 2, 3};
-        a |= maybe("a") {1, 2, 3};
+        a &= maybe("l") {1, 2, 3};
+        a ^= maybe("m") {1, 2, 3};
+        a |= maybe("n") {1, 2, 3};
 
         int[] array = new int[3];
         array = new int[]{1, 2, 3};
@@ -65,10 +62,10 @@ public class Hello {
         maybe ("abcd") {
             System.out.println(label);
         }
-        // TODO: duplicate label check
-        maybe ("abcd") {
-            System.out.println(label);
-        }
+        // DONE: duplicate label check
+        // maybe ("abcd") {
+        //     System.out.println(label);
+        // }
 
         label = "Two alternatives ";
         maybe ("2") {

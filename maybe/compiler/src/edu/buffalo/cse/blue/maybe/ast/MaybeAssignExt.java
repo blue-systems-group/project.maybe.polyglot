@@ -174,6 +174,7 @@ public class MaybeAssignExt extends MaybeExt {
         if (a instanceof MaybeAssign) {
             MaybeAssign maybeAssign = (MaybeAssign) this.node();
             Expr label = maybeAssign.label();
+            checkDuplicateLabel(label);
             if (!(label instanceof StringLit)) {
                 throw new SemanticException("Maybe label must be String Literal.",
                         label.position());
