@@ -99,9 +99,8 @@ public enum Metadata {
 
     /**
      * Called from Main.java to indicate the compiler finish and ready to generate metadata.
-     * @throws SemanticException for duplicated labels.
      */
-    public void finish() throws SemanticException {
+    public void finish() {
         JSONObject jsonObject = new JSONObject();
 
         // TODO: get real package name
