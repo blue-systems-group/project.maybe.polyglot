@@ -2,8 +2,12 @@ package edu.buffalo.cse.blue.maybe.metadata;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import polyglot.main.Main;
 import polyglot.util.Position;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
@@ -33,9 +37,6 @@ public enum Metadata {
         if (statementList == null) {
             statementList = new LinkedList<Statement>();
         }
-//        System.out.println(position.path());
-//        System.out.println(position.line());
-//        System.out.println(type);
         Statement statement = new Statement(position, label, alternatives, type);
         statementList.add(statement);
     }
@@ -99,8 +100,9 @@ public enum Metadata {
     /**
      * Called from Main.java to indicate the compiler finish and ready to generate metadata.
      * @param packageName the packageName in Metadata
+     * @param url the url to POST Metadata
      */
-    public void finish(String packageName) {
+    public void finish(String packageName, String url) throws Main.TerminationException {
         JSONObject jsonObject = new JSONObject();
 
         // TODO: get real package name
@@ -111,7 +113,19 @@ public enum Metadata {
         jsonObject.put(Constants.HASH, this.getSHA224(jsonObject));
 
         // TODO: issue post and pretty to file
-        System.out.println(jsonObject);
+        try {
+            new Post().post(url, jsonObject);
+        } catch (IOException e) {
+            throw new Main.TerminationException("IOException: " + e);
+        }
+
+//        try {
+//            BufferedWriter writer = new BufferedWriter(new FileWriter("t.json"));
+//            writer.write(jsonObject.toString(2));
+//            writer.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         this.clean();
     }
 

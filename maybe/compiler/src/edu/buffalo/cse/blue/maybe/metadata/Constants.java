@@ -22,4 +22,17 @@ public class Constants {
     public final static String START = "start";
     public final static String END = "end";
     public final static String VALUE = "value";
+
+
+    // url suffix for POST
+    public final static String URL_SUFFIX = "maybe-api-v1/metadata";
+
+    public static final String RESPONSE_CODE = "RESPONSE_CODE";
+    public static final String RESPONSE_LENGTH = "RESPONSE_LENGTH";
+    public static final String RESPONSE_MESSAGE = "RESPONSE_MESSAGE";
+    public static final String RESPONSE_CONTENT = "RESPONSE_CONTENT";
+    public static final String RESPONSE_ERROR = "RESPONSE_ERROR";
+    public static final String DEFAULT_ENCODING = "UTF-8";
+
+    public static final String EMPTY = "";
 }
