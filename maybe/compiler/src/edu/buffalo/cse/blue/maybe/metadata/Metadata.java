@@ -1,16 +1,10 @@
 package edu.buffalo.cse.blue.maybe.metadata;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.Gson;
 import polyglot.main.Main;
 import polyglot.util.Position;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,7 +19,7 @@ public enum Metadata {
     // TODO: sort by position
     // TODO: get android package name
     // TODO: generate statements, alternatives, and start/end
-    private List<Statement> statementList;
+    private PackageData packageData;
 
     /**
      * private method to really add a maybe block or variable.
@@ -34,11 +28,10 @@ public enum Metadata {
      * @param alternatives the Position list for alternatives of this maybe block/variable
      */
     private void add(Position position, Position label, List<Position> alternatives, MaybeType type) {
-        if (statementList == null) {
-            statementList = new LinkedList<Statement>();
+        if (packageData == null) {
+            packageData = new PackageData();
         }
-        Statement statement = new Statement(position, label, alternatives, type);
-        statementList.add(statement);
+        packageData.addStatement(new Statement(position, label, alternatives, type));
     }
 
     /**
@@ -48,7 +41,7 @@ public enum Metadata {
      * @param alternatives the Position list for alternatives of this maybe block
      */
     public void addMaybeBlock(Position position, Position label, List<Position> alternatives) {
-        this.add(position, label, alternatives, MaybeType.BLOCK);
+        this.add(position, label, alternatives, MaybeType.block);
     }
 
     /**
@@ -58,46 +51,7 @@ public enum Metadata {
      * @param alternatives the Position list for alternatives of this maybe variable
      */
     public void addMaybeVariable(Position position, Position label, List<Position> alternatives) {
-        this.add(position, label, alternatives, MaybeType.ASSIGNMENT);
-    }
-
-    /**
-     * private method to generate SHA224
-     * @param jsonObject the json object contains maybe metadata
-     * @return sha224 string for the jsonObject
-     */
-    private String getSHA224(JSONObject jsonObject) {
-        try {
-            // refer from http://www.mkyong.com/java/java-sha-hashing-example/
-//            MessageDigest instance = MessageDigest.getInstance("SHA-224");
-            // There is no SHA-224 in Java 7
-            // TODO: try another method to get sha224
-            MessageDigest instance = MessageDigest.getInstance("SHA-256");
-            byte[] bytes = instance.digest(jsonObject.toString().getBytes());
-
-            StringBuilder stringBuilder = new StringBuilder();
-            for (byte aByte : bytes) {
-                stringBuilder.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
-            }
-
-            return stringBuilder.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return "no SHA-224 algorithm found!";
-        }
-    }
-
-    /**
-     * private method to generate JSONArray for statements
-     * @param list Statement list
-     * @return JSONArray contains JSONObjects for all Statement in list
-     */
-    private JSONArray getStatementJSONArray(List<Statement> list) {
-        JSONArray jsonArray = new JSONArray();
-        for (Statement statement : list) {
-            jsonArray.put(statement.toJSON());
-        }
-        return jsonArray;
+        this.add(position, label, alternatives, MaybeType.assignment);
     }
 
     /**
@@ -106,18 +60,14 @@ public enum Metadata {
      * @param url the url to POST Metadata
      */
     public void finish(String packageName, String url) throws Main.TerminationException {
-        JSONObject jsonObject = new JSONObject();
+        this.packageData.setPackageName(packageName);
+        this.packageData.setSha224_hash();
 
-        // TODO: get real package name
-        jsonObject.put(Constants.PACKAGE, packageName);
-
-        jsonObject.put(Constants.STATEMENTS, this.getStatementJSONArray(statementList));
-
-        jsonObject.put(Constants.HASH, this.getSHA224(jsonObject));
+        String jsonString = new Gson().toJson(this.packageData);
 
         // TODO: issue post and pretty to file
         try {
-            new Post().post(url, jsonObject);
+            new Post().post(url, jsonString);
         } catch (IOException e) {
             throw new Main.TerminationException("IOException: " + e);
         }

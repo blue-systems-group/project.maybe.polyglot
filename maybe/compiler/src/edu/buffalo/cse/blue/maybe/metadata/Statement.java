@@ -1,7 +1,5 @@
 package edu.buffalo.cse.blue.maybe.metadata;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import polyglot.main.Main;
 import polyglot.util.Position;
 
@@ -20,23 +18,23 @@ public class Statement {
     private String label;
     private String content;
     private int line;
-    private List<Alternative> alternativeList;
+    private List<Alternative> alternatives;
 
-    private List<Line> lineList;
-    private int startLine;
-    private int startColumn;
-    private int endLine;
-    private int endColumn;
+    private transient List<Line> lineList;
+    private transient int startLine;
+    private transient int startColumn;
+    private transient int endLine;
+    private transient int endColumn;
 
     public Statement(Position position, Position label, List<Position> alternatives, MaybeType type) {
         this.type = type;
         this.line = position.line();
         this.content = this.getContent(position);
         this.label = this.getLabel(label);
-        alternativeList = new LinkedList<Alternative>();
+        this.alternatives = new LinkedList<Alternative>();
         for (int i = 0; i < alternatives.size(); i++) {
             Alternative alternative = this.getAlternative(alternatives.get(i), i);
-            alternativeList.add(alternative);
+            this.alternatives.add(alternative);
         }
 //        System.out.println(position);
 //        System.out.println(content);
@@ -86,7 +84,7 @@ public class Statement {
             }
 
             StringBuilder stringBuilder = new StringBuilder();
-            if (this.type == MaybeType.BLOCK) {
+            if (this.type == MaybeType.block) {
                 // TODO: if the code style is not ordinary. Handle by reach the most left space/tab from startColumn.
                 startColumn = 0;
             }
@@ -121,33 +119,11 @@ public class Statement {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(content);
         stringBuilder.append('\n');
-        for (Alternative alternative : alternativeList) {
+        for (Alternative alternative : alternatives) {
             stringBuilder.append(alternative.value + ": ");
             stringBuilder.append(content.substring(alternative.start, alternative.end));
             stringBuilder.append('\n');
         }
         return stringBuilder.toString();
-    }
-
-    public JSONObject toJSON() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(Constants.CONTENT, content);
-        jsonObject.put(Constants.LINE, startLine + 1);
-        jsonObject.put(Constants.TYPE, type.toString().toLowerCase());
-        jsonObject.put(Constants.LABEL, label);
-        jsonObject.put(Constants.ALTERNATIVES, this.getAlternativesJSONArray());
-        return jsonObject;
-    }
-
-    private JSONArray getAlternativesJSONArray() {
-        JSONArray jsonArray = new JSONArray();
-        for (Alternative alternative : alternativeList) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put(Constants.START, alternative.start);
-            jsonObject.put(Constants.END, alternative.end);
-            jsonObject.put(Constants.VALUE, alternative.value);
-            jsonArray.put(jsonObject);
-        }
-        return jsonArray;
     }
 }

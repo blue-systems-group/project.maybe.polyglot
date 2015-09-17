@@ -2,6 +2,6 @@
     <info organisation="edu.buffalo.cse.maybe" module="maybe-compiler" />
 
     <dependencies>
-        <dependency org="org.json" name="json" rev="20140107"/>
+        <dependency org="com.google.code.gson" name="gson" rev="2.3.1"/>
     </dependencies>
 </ivy-module>

@@ -10,7 +10,7 @@ import java.net.URL;
  * Created by xcv58 on 9/16/15.
  */
 public class Post {
-    public void post(String urlString, JSONObject jsonObject) throws IOException {
+    public void post(String urlString, String jsonString) throws IOException {
         HttpURLConnection connection = null;
         try {
             URL url = new URL(urlString);
@@ -24,7 +24,7 @@ public class Post {
             connection.setChunkedStreamingMode(0);
 
             OutputStreamWriter writer = new OutputStreamWriter(new BufferedOutputStream(connection.getOutputStream()));
-            writer.write(jsonObject.toString());
+            writer.write(jsonString);
             writer.close();
 
             JSONObject responseJSONObject = this.getResponseJSONObject(connection);
