@@ -5,7 +5,7 @@ package edu.buffalo.cse.blue.maybe.metadata;
  */
 public class Constants {
     // url suffix for POST
-    public final static String URL_SUFFIX = "maybe-api-v1/metadata";
+    public final static String URL_SUFFIX = "maybe-api-v1";
 
     public static final String RESPONSE_CODE = "RESPONSE_CODE";
     public static final String RESPONSE_LENGTH = "RESPONSE_LENGTH";

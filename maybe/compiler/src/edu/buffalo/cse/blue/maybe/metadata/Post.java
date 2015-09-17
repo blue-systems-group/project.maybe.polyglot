@@ -1,101 +1,39 @@
 package edu.buffalo.cse.blue.maybe.metadata;
 
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import polyglot.main.Main;
+import retrofit.Call;
+import retrofit.GsonConverterFactory;
+import retrofit.Response;
+import retrofit.Retrofit;
+import retrofit.http.Body;
+import retrofit.http.POST;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+
 
 /**
  * Created by xcv58 on 9/16/15.
  */
 public class Post {
-    public void post(String urlString, String jsonString) throws IOException {
-        HttpURLConnection connection = null;
-        try {
-            URL url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Accept", "application/json");
-
-            connection.setDoOutput(true);
-            connection.setChunkedStreamingMode(0);
-
-            OutputStreamWriter writer = new OutputStreamWriter(new BufferedOutputStream(connection.getOutputStream()));
-            writer.write(jsonString);
-            writer.close();
-
-            JSONObject responseJSONObject = this.getResponseJSONObject(connection);
-            System.out.println(responseJSONObject.get(Constants.RESPONSE_CODE));
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
+    private interface MaybeMetadataService {
+        @POST("maybe-api-v1/metadata")
+        Call<PackageData> uploadMetadata(@Body PackageData packageData);
     }
 
-    private JSONObject getResponseJSONObject(HttpURLConnection connection) {
-        JSONObject jsonObject = new JSONObject();
+    public void post(String url, PackageData packageData) throws IOException, Main.TerminationException {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(url)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        MaybeMetadataService service = retrofit.create(MaybeMetadataService.class);
 
-        int responseCode = -1;
-        InputStream inputStream = null;
-        String responseMessage = null;
-
-        try {
-            responseCode = connection.getResponseCode();
-            inputStream = connection.getInputStream();
-            responseMessage = connection.getResponseMessage();
-        } catch (IOException e) {
-            inputStream = connection.getErrorStream();
-        }
-        int length = connection.getContentLength();
-
-        jsonObject.put(Constants.RESPONSE_CODE, responseCode);
-        jsonObject.put(Constants.RESPONSE_MESSAGE, responseMessage);
-        jsonObject.put(Constants.RESPONSE_LENGTH, length);
-
-//        InputStream errorStream = connection.getErrorStream();
-
-        String content = this.readFromInputStream(inputStream, length, connection.getContentEncoding());
-        jsonObject.put(Constants.RESPONSE_CONTENT, content);
-//        String error = Utils.readFromInputStream(errorStream, length, connection.getContentEncoding());
-//        jsonObject.put(Constants.RESPONSE_ERROR, error);
-
-        return jsonObject;
-    }
-
-    private String readFromInputStream(InputStream inputStream, int length, String encoding) {
-        if (inputStream == null) {
-            return Constants.EMPTY;
-        }
-        if (encoding == null) {
-            encoding = Constants.DEFAULT_ENCODING;
-        }
-        if (length == -1) {
-            StringBuilder stringBuilder = new StringBuilder();
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, encoding));
-                for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                    stringBuilder.append(line);
-                }
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return stringBuilder.toString();
+        Call<PackageData> call = service.uploadMetadata(packageData);
+        Response<PackageData> response = call.execute();
+        if (response.isSuccess()) {
+            // TODO: how to handle success, do we need notify user?
         } else {
-            byte[] bytes = new byte[length];
-            try {
-                inputStream.read(bytes, 0, length);
-                return new String(bytes, encoding);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return Constants.EMPTY;
-            }
+            throw new Main.TerminationException(response.errorBody().string());
         }
     }
 }

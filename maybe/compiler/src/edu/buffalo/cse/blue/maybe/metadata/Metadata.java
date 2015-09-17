@@ -63,15 +63,16 @@ public enum Metadata {
         this.packageData.setPackageName(packageName);
         this.packageData.setSha224_hash();
 
-        String jsonString = new Gson().toJson(this.packageData);
+//        String jsonString = new Gson().toJson(this.packageData);
 
-        // TODO: issue post and pretty to file
+        // DONE: issue post and pretty to file
         try {
-            new Post().post(url, jsonString);
+            new Post().post(url, this.packageData);
         } catch (IOException e) {
             throw new Main.TerminationException("IOException: " + e);
         }
 
+        // TODO: pretty to file
 //        try {
 //            BufferedWriter writer = new BufferedWriter(new FileWriter("t.json"));
 //            writer.write(jsonObject.toString(2));
@@ -86,7 +87,7 @@ public enum Metadata {
      * private method for cleanup internal data.
      * It's not used because current implementation only compile once for per compiler task.
      */
-    private void clean(){
-
+    private void clean() {
+        this.packageData = null;
     }
 }

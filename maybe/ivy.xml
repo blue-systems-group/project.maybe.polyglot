@@ -3,5 +3,7 @@
 
     <dependencies>
         <dependency org="com.google.code.gson" name="gson" rev="2.3.1"/>
+        <dependency org="com.squareup.retrofit" name="retrofit" rev="2.0.0-beta1"/>
+        <dependency org="com.squareup.retrofit" name="converter-gson" rev="2.0.0-beta1"/>
     </dependencies>
 </ivy-module>

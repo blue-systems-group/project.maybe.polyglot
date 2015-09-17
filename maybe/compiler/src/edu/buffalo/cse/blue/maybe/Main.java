@@ -1,6 +1,5 @@
 package edu.buffalo.cse.blue.maybe;
 
-import edu.buffalo.cse.blue.maybe.metadata.Constants;
 import edu.buffalo.cse.blue.maybe.metadata.Metadata;
 
 import java.util.ArrayList;
@@ -41,13 +40,6 @@ public class Main {
         return list.toArray(new String[list.size()]);
     }
 
-    private String getPOSTUrl(String s) {
-        if (s.charAt(s.length() - 1) != '/') {
-            s += "/";
-        }
-        return s + Constants.URL_SUFFIX;
-    }
-
     public void start(String[] args) {
         polyglot.main.Main polyglotMain = new polyglot.main.Main();
         // TODO: add arg for whether POST metadata or not
@@ -57,7 +49,7 @@ public class Main {
         try {
             args = this.processArgs(args);
             polyglotMain.start(args, new edu.buffalo.cse.blue.maybe.ExtensionInfo());
-            Metadata.INSTANCE.finish(packageName, getPOSTUrl(url));
+            Metadata.INSTANCE.finish(packageName, url);
         } catch (polyglot.main.Main.TerminationException e) {
             System.err.println(e.getMessage());
             System.exit(1);

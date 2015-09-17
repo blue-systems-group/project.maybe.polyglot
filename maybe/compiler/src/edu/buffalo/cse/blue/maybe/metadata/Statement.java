@@ -41,6 +41,10 @@ public class Statement {
 //        System.out.println();
     }
 
+    public String getLabel() {
+        return label;
+    }
+
     private String getLabel(Position position) {
         int start = this.getLinearPosition(position.line() - 1, position.column()) + 1;
         int end = this.getLinearPosition(position.endLine() - 1, position.endColumn()) - 1;

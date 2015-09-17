@@ -78,7 +78,7 @@ done
 # fi
 
 
-classpath="$dir/lib/polyglot.jar:$dir/lib/maybe.jar:lib/gson-2.3.1.jar"
+classpath="$dir/lib/polyglot.jar:$dir/lib/maybe.jar:$dir/lib/gson-2.3.1.jar:$dir/lib/retrofit-2.0.0-beta1.jar:$dir/lib/okio-1.6.0.jar:$dir/lib/okhttp-2.5.0.jar:$dir/lib/converter-gson-2.0.0-beta1.jar"
 if [ -n "$ext" ]; then
   classpath="$classpath:$dir/lib/$ext.jar"
 fi
