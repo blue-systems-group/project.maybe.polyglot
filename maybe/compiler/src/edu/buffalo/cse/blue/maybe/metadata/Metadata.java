@@ -1,6 +1,7 @@
 package edu.buffalo.cse.blue.maybe.metadata;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import polyglot.main.Main;
 import polyglot.util.Position;
 
@@ -73,6 +74,8 @@ public enum Metadata {
         }
 
         // TODO: pretty to file
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String jsonString = gson.toJson(this.packageData);
 //        try {
 //            BufferedWriter writer = new BufferedWriter(new FileWriter("t.json"));
 //            writer.write(jsonObject.toString(2));

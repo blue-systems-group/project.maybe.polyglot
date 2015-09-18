@@ -1,6 +1,6 @@
 package edu.buffalo.cse.blue.maybe.metadata;
 
-import com.google.gson.Gson;
+import com.squareup.okhttp.ResponseBody;
 import polyglot.main.Main;
 import retrofit.Call;
 import retrofit.GsonConverterFactory;
