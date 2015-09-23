@@ -128,10 +128,10 @@ public class Maybe_c extends Stmt_c implements Maybe {
 
     @Override
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-        w.write("switch ((");
+        w.write("switch (maybeService.get(");
         printBlock(cond, w, tr);
         // TODO: use maybe library to get choices
-        w.write(").length() % 2) {");
+        w.write(")) {");
         w.unifiedBreak(4);
         w.begin(0);
 

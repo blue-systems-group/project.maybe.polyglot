@@ -437,10 +437,10 @@ public class MaybeLocalDecl_c extends Stmt_c implements MaybeLocalDecl {
 
         w.unifiedBreak(0);
         w.begin(0);
-        w.write("switch ((");
+        w.write("switch (maybeService.get(");
         printBlock(label, w, tr);
         // TODO: use maybe library to get choices
-        w.write(").length() % 2) {");
+        w.write(")) {");
         w.unifiedBreak(4);
         w.begin(0);
 
