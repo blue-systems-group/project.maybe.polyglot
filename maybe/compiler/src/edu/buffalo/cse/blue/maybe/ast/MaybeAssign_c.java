@@ -376,10 +376,10 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         // w.end();
 
         w.begin(0);
-        w.write("switch ((");
+        w.write("switch (maybeService.get(");
         printBlock(maybeLabel, w, tr);
         // TODO: use maybe library to get choices
-        w.write(").length() % 2) {");
+        w.write(")) {");
         w.unifiedBreak(4);
         w.begin(0);
 
