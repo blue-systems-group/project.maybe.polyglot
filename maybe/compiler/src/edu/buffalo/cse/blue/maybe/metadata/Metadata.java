@@ -59,18 +59,25 @@ public enum Metadata {
      * Called from Main.java to indicate the compiler finish and ready to generate metadata.
      * @param packageName the packageName in Metadata
      * @param url the url to POST Metadata
+     * @param upload whether upload to backend server
      */
-    public void finish(String packageName, String url) throws Main.TerminationException {
+    public void finish(String packageName, String url, boolean upload) throws Main.TerminationException {
+        if (this.packageData == null) {
+            return;
+        }
+
         this.packageData.setPackageName(packageName);
         this.packageData.setSha224_hash();
 
 //        String jsonString = new Gson().toJson(this.packageData);
 
         // DONE: issue post and pretty to file
-        try {
-            new Post().post(url, this.packageData);
-        } catch (IOException e) {
-            throw new Main.TerminationException("IOException: " + e);
+        if (upload) {
+            try {
+                new Post().post(url, this.packageData);
+            } catch (IOException e) {
+                throw new Main.TerminationException("IOException: " + e);
+            }
         }
 
         // TODO: pretty to file
