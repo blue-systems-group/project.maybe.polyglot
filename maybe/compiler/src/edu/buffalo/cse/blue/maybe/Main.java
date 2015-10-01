@@ -13,6 +13,7 @@ import java.util.List;
 public class Main {
     private static String packageName;
     private static String url = "http://maybe.xcv58.me";
+    private static boolean POST = false;
 
     /* modifies args */
     private String[] processArgs(String[] args) throws polyglot.main.Main.TerminationException{
@@ -30,6 +31,8 @@ public class Main {
                             "you need provide a valid url after -url");
                 }
                 url = args[++i];
+            } else if (args[i].equals("-upload")) {
+                POST = true;
             } else {
                 list.add(args[i]);
             }
@@ -49,7 +52,7 @@ public class Main {
         try {
             args = this.processArgs(args);
             polyglotMain.start(args, new edu.buffalo.cse.blue.maybe.ExtensionInfo());
-            Metadata.INSTANCE.finish(packageName, url);
+            Metadata.INSTANCE.finish(packageName, url, POST);
         } catch (polyglot.main.Main.TerminationException e) {
             System.err.println(e.getMessage());
             System.exit(1);
