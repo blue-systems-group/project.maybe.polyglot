@@ -414,6 +414,15 @@ public abstract class MaybeAssign_c extends Expr_c implements MaybeAssign {
         w.write("default: ");
         w.unifiedBreak(0);
         // TODO: handle default, choices out of range error
+        printSubExpr(left, true, w, tr);
+        w.write(" ");
+        w.write(op.toString());
+        w.allowBreak(2, 2, " ", 1); // miser mode
+        w.begin(0);
+        printSubExpr(alternatives.get(0), false, w, tr);
+        w.write(";");
+        w.end();
+        w.unifiedBreak(0);
         w.write("break;");
 
         w.end();

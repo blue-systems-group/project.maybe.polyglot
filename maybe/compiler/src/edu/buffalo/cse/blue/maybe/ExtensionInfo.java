@@ -62,4 +62,8 @@ public class ExtensionInfo extends JL7ExtensionInfo {
         return new MaybeTypeSystem_c();
     }
 
+    @Override
+    public Scheduler createScheduler() {
+        return new MaybeScheduler(this);
+    }
 }

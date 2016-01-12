@@ -53,6 +53,10 @@ public class Hello {
         // array = maybe("array") {{1}, {2}, {3}};
         // TODO: error below
         array[0] = maybe("array") {1, 2, 3};
+
+        int c;
+        c = maybe("o") {1, 2, 3};
+        a = c;
     }
 
     public static void main(String[] args) {
