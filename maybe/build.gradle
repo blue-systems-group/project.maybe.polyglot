@@ -34,7 +34,7 @@ jar {
 
 def siteUrl = 'https://github.com/blue-systems-group/project.maybe.polyglot'
 def gitUrl = 'https://github.com/blue-systems-group/project.maybe.polyglot.git'
-def versionName = '0.0.4'
+version = '0.0.4'
 group = 'edu.buffalo.cse.maybe'
 def artifactId = 'maybe-statement-compiler'
 def desc = "Maybe Statement Compiler"
@@ -45,7 +45,7 @@ publishing {
             from components.java
             groupId = group
             artifactId = artifactId
-            version = versionName
+            version = version
         }
     }
 }
@@ -98,7 +98,7 @@ bintray {
         vcsUrl = gitUrl
         licenses = ["MIT"]
         version {
-            name = versionName
+            name = version
             desc = desc
         }
     }
