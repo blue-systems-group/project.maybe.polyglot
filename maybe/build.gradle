@@ -34,7 +34,7 @@ jar {
 
 def siteUrl = 'https://github.com/blue-systems-group/project.maybe.polyglot'
 def gitUrl = 'https://github.com/blue-systems-group/project.maybe.polyglot.git'
-def versionName = '0.0.3'
+def versionName = '0.0.4'
 group = 'edu.buffalo.cse.maybe'
 def artifactId = 'maybe-statement-compiler'
 def desc = "Maybe Statement Compiler"
