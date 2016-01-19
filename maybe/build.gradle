@@ -34,15 +34,26 @@ jar {
 
 def siteUrl = 'https://github.com/blue-systems-group/project.maybe.polyglot'
 def gitUrl = 'https://github.com/blue-systems-group/project.maybe.polyglot.git'
-version = '0.0.4'
+version = '0.0.6'
 group = 'edu.buffalo.cse.maybe'
 def artifactId = 'maybe-statement-compiler'
 def desc = "Maybe Statement Compiler"
+
+task sourceJar(type: Jar) {
+  classifier "sources"
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
 
 publishing {
     publications {
         MyPublication(MavenPublication) {
             from components.java
+            artifact source: sourceJar, classifier: 'src'
+            artifact javadocJar
             groupId = group
             artifactId = artifactId
             version = version
@@ -98,7 +109,7 @@ bintray {
         vcsUrl = gitUrl
         licenses = ["MIT"]
         version {
-            name = version
+            name = '0.0.6'
             desc = desc
         }
     }
